@@ -1,0 +1,215 @@
+/* ==========================================================================
+   Potreros Component Styles
+   ========================================================================== */
+
+.potreros-container {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.total-pastures-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 10px 18px;
+  box-shadow: var(--shadow-sm);
+}
+
+.total-pasture-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: #f2ebe3;
+  color: #8c6239;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-pdf {
+  background-color: #dc2626;
+  color: #ffffff;
+  border-radius: var(--radius-pill);
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.25);
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-pdf:hover {
+  background-color: #b91c1c;
+  transform: translateY(-1px);
+}
+
+.field-origin-notice {
+  background: #fdfaf2;
+  border: 1px solid #e8dec8;
+  border-left: 4px solid var(--earth);
+  border-radius: var(--radius-md);
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.85rem;
+  color: var(--text-main);
+}
+
+.field-origin-notice .material-symbols-rounded {
+  color: var(--earth);
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.potrero-audit-mini {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.725rem;
+  color: var(--text-muted);
+}
+
+.potrero-audit-mini .mini-icon {
+  font-size: 14px;
+  color: var(--primary);
+}
+
+/* Grid de Potreros (Estilo Pantalla 7 Mockup) */
+.potreros-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.potrero-card {
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: var(--transition);
+}
+
+.potrero-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-medium);
+}
+
+.potrero-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.potrero-icon-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: #f2ebe3;
+  color: #8c6239;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.potrero-icon-avatar.ocupado {
+  background-color: #fef3c7;
+  color: #b45309;
+}
+
+.potrero-icon-avatar .material-symbols-rounded {
+  font-size: 24px;
+}
+
+.potrero-title-area {
+  flex: 1;
+  min-width: 0;
+}
+
+.potrero-name {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1.2;
+}
+
+.potrero-area-text {
+  font-size: 0.825rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  display: block;
+  margin-top: 3px;
+}
+
+.potrero-header-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.potrero-badge-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.potrero-cycle-text {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  background: #fbfaf6;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-light);
+}
+
+.btn-rotation-link {
+  width: 100%;
+  margin-top: 4px;
+  border-radius: var(--radius-pill);
+  font-weight: 700;
+  justify-content: center;
+}
+
+/* Área Calculada Box */
+.area-calculated-box {
+  background: #edf7ef;
+  border: 1.5px solid #b8e0c2;
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.area-calc-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: #14532d;
+}
+
+.area-calc-header .material-symbols-rounded {
+  font-size: 18px;
+  color: #16a34a;
+}
+
+.area-calc-values {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.95rem;
+  color: #14532d;
+}

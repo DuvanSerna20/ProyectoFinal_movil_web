@@ -1,0 +1,172 @@
+<div class="usuarios-container">
+  <!-- Encabezado con Totalizador y Botón de Sacar PDF -->
+  <div class="section-top-bar">
+    <div class="title-with-kpi">
+      <div class="total-users-card">
+        <div class="users-icon">
+          <span class="material-symbols-rounded">manage_accounts</span>
+        </div>
+        <div class="total-info">
+          <span class="total-label">Cuentas Registradas en Android</span>
+          <span class="total-value">{{ farmService.totalUsuarios() }}</span>
+        </div>
+      </div>
+
+      <div class="stat-pills">
+        <div class="sub-stat">
+          <span class="badge badge-success">{{ farmService.usuariosActivos() }} Activos</span>
+        </div>
+        <div class="sub-stat">
+          <span class="badge badge-info">1 Administrador &bull; 3 Operarios</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botón de Exportar a PDF -->
+    <div class="top-actions">
+      <button type="button" class="btn btn-pdf" (click)="exportarPDF()">
+        <span class="material-symbols-rounded">picture_as_pdf</span>
+        Sacar PDF de Usuarios
+      </button>
+    </div>
+  </div>
+
+
+  <!-- Barra de Filtros y Búsqueda -->
+  <div class="filter-toolbar card">
+    <div class="search-box">
+      <span class="material-symbols-rounded search-icon">search</span>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Buscar usuario por nombre, correo o dispositivo..."
+        [ngModel]="searchTerm()"
+        (ngModelChange)="searchTerm.set($event)"
+      />
+      @if (searchTerm()) {
+        <button class="clear-search-btn" (click)="searchTerm.set('')">
+          <span class="material-symbols-rounded">close</span>
+        </button>
+      }
+    </div>
+
+    <div class="filter-controls">
+      <div class="filter-group">
+        <span class="filter-label">Rol:</span>
+        <select
+          class="form-select filter-select"
+          [ngModel]="filtroRol()"
+          (ngModelChange)="filtroRol.set($event)">
+          @for (r of roles; track r) {
+            <option [value]="r">{{ r }}</option>
+          }
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla de Usuarios con Botón de Borrar Usuario -->
+  <div class="card table-card">
+    <div class="table-responsive">
+      <table class="admin-data-table">
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>Rol Asignado</th>
+            <th>Correo Electrónico</th>
+            <th>Dispositivo Android</th>
+            <th>Fecha Registro</th>
+            <th>Último Acceso</th>
+            <th>Estado</th>
+            <th class="text-right">Borrar Cuenta</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (u of usuariosFiltrados(); track u.id) {
+            <tr>
+              <td>
+                <div class="user-row-identity">
+                  <div class="user-avatar-tag" [class.admin]="u.rol === 'Administrador'">
+                    {{ u.nombre.substring(0, 2).toUpperCase() }}
+                  </div>
+                  <div class="user-name-block">
+                    <strong>{{ u.nombre }}</strong>
+                    <small class="text-muted">{{ u.finca }}</small>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="badge" [class.badge-success]="u.rol === 'Administrador'" [class.badge-earth]="u.rol === 'Operario de Campo'" [class.badge-info]="u.rol === 'Vaquero'">
+                  {{ u.rol }}
+                </span>
+              </td>
+              <td><span class="email-text">{{ u.correo }}</span></td>
+              <td>
+                <span class="device-text">
+                  <span class="material-symbols-rounded mini-icon">smartphone</span>
+                  {{ u.dispositivo }}
+                </span>
+              </td>
+              <td><small class="text-muted">{{ u.fechaRegistro }}</small></td>
+              <td><small class="text-muted">{{ u.ultimoAcceso }}</small></td>
+              <td>
+                <span class="badge" [class.badge-success]="u.estado === 'Activo'" [class.badge-danger]="u.estado === 'Inactivo'">
+                  {{ u.estado }}
+                </span>
+              </td>
+              <td class="text-right">
+                <button
+                  type="button"
+                  class="btn-icon-only danger"
+                  [disabled]="u.rol === 'Administrador'"
+                  (click)="solicitarEliminar(u)"
+                  title="{{ u.rol === 'Administrador' ? 'No se puede eliminar la cuenta principal' : 'Borrar este usuario' }}">
+                  <span class="material-symbols-rounded">person_remove</span>
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="8" class="text-center py-5">
+                <p class="text-muted">No se encontraron usuarios con ese criterio.</p>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal de Confirmación de Eliminación de Usuario -->
+  @if (modalEliminarAbierto() && usuarioAEliminar()) {
+    <div class="modal-backdrop" (click)="cancelarEliminar()">
+      <div class="modal-card modal-sm" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2 class="modal-title text-danger">
+            <span class="material-symbols-rounded">person_remove</span>
+            Borrar Usuario Móvil
+          </h2>
+          <button type="button" class="btn-icon-only" (click)="cancelarEliminar()">
+            <span class="material-symbols-rounded">close</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>¿Está seguro de que desea eliminar la cuenta de <strong>{{ usuarioAEliminar()?.nombre }}</strong> ({{ usuarioAEliminar()?.correo }})?</p>
+          <div class="warning-callout mt-3">
+            <span class="material-symbols-rounded">warning</span>
+            <p>El usuario perderá el acceso a la aplicación Android en su dispositivo <strong>{{ usuarioAEliminar()?.dispositivo }}</strong> y no podrá sincronizar registros nuevos.</p>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="cancelarEliminar()">
+            Cancelar
+          </button>
+          <button type="button" class="btn btn-danger-outline" (click)="confirmarEliminar()">
+            <span class="material-symbols-rounded">delete_forever</span>
+            Sí, borrar usuario
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

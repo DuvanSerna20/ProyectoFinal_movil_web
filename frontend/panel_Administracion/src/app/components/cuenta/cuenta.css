@@ -1,0 +1,121 @@
+/* ==========================================================================
+   Cuenta Component Styles
+   ========================================================================== */
+
+.cuenta-container {
+  display: flex;
+  justify-content: center;
+  padding: 10px 0;
+}
+
+.cuenta-card-box {
+  max-width: 580px;
+  width: 100%;
+  padding: 36px 32px;
+  background: #ffffff;
+}
+
+.cuenta-profile-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border-light);
+  margin-bottom: 24px;
+}
+
+.avatar-large-circle {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background-color: var(--primary);
+  color: #ffffff;
+  font-size: 2.2rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 18px rgba(32, 92, 53, 0.3);
+  margin-bottom: 12px;
+}
+
+.profile-name {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.profile-created {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.cuenta-data-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.cuenta-data-item {
+  background: #fbfaf6;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.data-lbl {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.data-val {
+  font-size: 1rem;
+  color: var(--text-main);
+}
+
+.cuenta-actions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.android-integration-box {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.integration-icon {
+  width: 36px;
+  height: 36px;
+  background: #dcfce7;
+  color: #166534;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.integration-info strong {
+  display: block;
+  font-size: 0.875rem;
+  color: #14532d;
+}
+
+.integration-info p {
+  font-size: 0.775rem;
+  color: #166534;
+  margin-top: 2px;
+}

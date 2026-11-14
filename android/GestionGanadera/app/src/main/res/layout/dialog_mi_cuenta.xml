@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@color/superficie">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Mi Cuenta"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/texto"
+        android:gravity="center"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:id="@+id/tvProfileInitials"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:text="JB"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:textColor="@color/blanco"
+        android:background="@drawable/bg_circulo"
+        android:gravity="center"
+        android:layout_gravity="center"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:id="@+id/tvNombre"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Nombre: Juan Berrocal"
+        android:textSize="16sp"
+        android:textColor="@color/texto"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/tvFinca"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Finca: Finca El Encanto"
+        android:textSize="16sp"
+        android:textColor="@color/texto"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/tvCorreo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Correo: usuario@ganaderia.com"
+        android:textSize="16sp"
+        android:textColor="@color/texto"
+        android:layout_marginBottom="24dp" />
+
+    <Button
+        android:id="@+id/btnLogout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Cerrar sesión"
+        android:backgroundTint="@color/error"
+        android:textColor="@color/blanco" />
+
+</LinearLayout>

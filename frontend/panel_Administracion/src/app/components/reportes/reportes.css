@@ -1,0 +1,425 @@
+/* ==========================================================================
+   Reportes PDF Component Styles & Print Optimization
+   ========================================================================== */
+
+.reportes-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Barra de Controles (No se imprime) */
+.report-controls {
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  background: #ffffff;
+}
+
+.controls-left {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.control-label-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.control-label-group .material-symbols-rounded {
+  font-size: 32px;
+  color: #dc2626;
+}
+
+.control-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1.2;
+}
+
+.control-sub {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.report-type-selector {
+  display: flex;
+  background: #ede9dc;
+  padding: 3px;
+  border-radius: var(--radius-pill);
+  gap: 3px;
+  flex-wrap: wrap;
+}
+
+.rep-tab-btn {
+  background: transparent;
+  border: none;
+  padding: 8px 16px;
+  font-size: 0.825rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.rep-tab-btn.active {
+  background: #ffffff;
+  color: var(--primary);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-action-pdf {
+  background: #dc2626;
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  padding: 12px 24px;
+  border-radius: var(--radius-pill);
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.35);
+  transition: var(--transition);
+}
+
+.btn-action-pdf:hover {
+  background: #b91c1c;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(220, 38, 38, 0.45);
+}
+
+/* Hoja del Documento Oficial (Hoja estilo Carta / A4) */
+.pdf-document-sheet {
+  background: #ffffff;
+  border: 1px solid #d4cebe;
+  border-radius: 4px;
+  box-shadow: 0 6px 30px rgba(0, 0, 0, 0.08);
+  padding: 48px;
+  max-width: 1020px;
+  margin: 0 auto;
+  width: 100%;
+  color: #1a1a1a;
+  font-family: var(--font-family);
+}
+
+/* Membrete */
+.sheet-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.sheet-brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.sheet-logo-circle {
+  width: 58px;
+  height: 58px;
+  background: #1c522f;
+  color: #ffffff;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sheet-cow-icon {
+  width: 36px;
+  height: 36px;
+}
+
+.sheet-brand-titles {
+  display: flex;
+  flex-direction: column;
+}
+
+.sheet-farm-name {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #173d24;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.sheet-farm-sub {
+  font-size: 0.725rem;
+  font-weight: 700;
+  color: #4b6b55;
+  letter-spacing: 0.08em;
+  margin-top: 2px;
+}
+
+.sheet-location {
+  font-size: 0.775rem;
+  color: #666;
+  margin-top: 2px;
+}
+
+.sheet-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: right;
+  border-left: 2px solid #e5dfd0;
+  padding-left: 18px;
+}
+
+.meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  font-size: 0.775rem;
+}
+
+.meta-label {
+  color: #777;
+  font-weight: 600;
+}
+
+.meta-badge {
+  background: #e0f2fe;
+  color: #0369a1;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.sheet-divider {
+  height: 3px;
+  background: linear-gradient(90deg, #1c522f 0%, #8a6039 100%);
+  margin: 20px 0 24px 0;
+  border-radius: 2px;
+}
+
+/* Título de la Hoja */
+.sheet-title-section {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.sheet-doc-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #1a291f;
+  letter-spacing: 0.02em;
+}
+
+.sheet-doc-desc {
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 4px;
+}
+
+/* Resumen Métrico en el PDF */
+.sheet-kpi-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.sheet-kpi-box {
+  background: #fbfaf6;
+  border: 1px solid #e5dfd0;
+  border-radius: 8px;
+  padding: 12px 14px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.sk-lbl {
+  font-size: 0.725rem;
+  color: #777;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.sk-val {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #173d24;
+}
+
+.sk-sub {
+  font-size: 0.7rem;
+  color: #888;
+}
+
+/* Tablas del Documento */
+.sheet-section {
+  margin-bottom: 24px;
+}
+
+.sheet-section-title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #1c522f;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 4px;
+}
+
+.sheet-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.825rem;
+}
+
+.sheet-table th {
+  background-color: #f1ede1;
+  color: #2b382f;
+  font-weight: 700;
+  text-align: left;
+  padding: 8px 10px;
+  border: 1px solid #dcd5c4;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.sheet-table td {
+  padding: 7px 10px;
+  border: 1px solid #e8e2d4;
+  color: #333;
+}
+
+.sheet-table tr:nth-child(even) td {
+  background-color: #faf9f5;
+}
+
+.sheet-table-note {
+  display: block;
+  font-size: 0.725rem;
+  color: #888;
+  font-style: italic;
+  margin-top: 6px;
+}
+
+/* Firmas Oficiales */
+.sheet-footer {
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px dashed #d5cebc;
+  display: grid;
+  grid-template-columns: 1fr 1fr 140px;
+  gap: 24px;
+  align-items: flex-end;
+}
+
+.signature-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.signature-line {
+  width: 80%;
+  height: 1px;
+  background-color: #333;
+  margin-bottom: 8px;
+}
+
+.signer-name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #111;
+}
+
+.signer-role {
+  font-size: 0.725rem;
+  color: #666;
+}
+
+.seal-box {
+  display: flex;
+  justify-content: center;
+}
+
+.seal-circle {
+  width: 80px;
+  height: 80px;
+  border: 2px dashed #8a6039;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #8a6039;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.1;
+}
+
+.seal-circle small {
+  font-size: 0.55rem;
+}
+
+/* ==========================================================================
+   REGLAS DE IMPRESIÓN (@media print)
+   Al imprimir o guardar como PDF en el navegador, solo se imprime el documento
+   ========================================================================== */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  .admin-sidebar,
+  .admin-topbar,
+  .no-print,
+  .toggle-btn {
+    display: none !important;
+  }
+
+  .admin-layout {
+    display: block !important;
+  }
+
+  .admin-main {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .page-content {
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .pdf-document-sheet {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .sheet-header {
+    page-break-inside: avoid;
+  }
+
+  .sheet-section {
+    page-break-inside: avoid;
+  }
+
+  .sheet-footer {
+    page-break-inside: avoid;
+  }
+}

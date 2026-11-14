@@ -1,0 +1,194 @@
+<div class="page-container">
+  <!-- Encabezado del Módulo -->
+  <div class="module-header card">
+    <div class="header-titles">
+      <div class="title-with-badge">
+        <span class="material-symbols-rounded module-icon">medication</span>
+        <h1 class="page-title">Alimentación y Sanidad</h1>
+      </div>
+      <p class="page-subtitle">
+        Auditoría de suministros, suplementos y tratamientos médicos registrados desde los dispositivos de campo.
+      </p>
+
+      <div class="quick-stats-row">
+        <div class="sub-stat">
+          <span class="badge badge-primary">{{ farmService.totalAlimentacion() }} Registros Totales</span>
+        </div>
+        <div class="sub-stat">
+          <span class="badge badge-success">{{ farmService.tratamientosActivos() }} Activos</span>
+        </div>
+        <div class="sub-stat">
+          <span class="badge badge-warning">{{ farmService.tratamientosRetiro() }} Con Retiro de Leche</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="top-actions">
+      <button type="button" class="btn btn-pdf" (click)="exportarPDF()">
+        <span class="material-symbols-rounded">picture_as_pdf</span>
+        Sacar PDF de Sanidad
+      </button>
+    </div>
+  </div>
+
+  <!-- Barra de Filtros y Búsqueda -->
+  <div class="filter-toolbar card">
+    <div class="search-box">
+      <span class="material-symbols-rounded search-icon">search</span>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Buscar por producto, lote o animal..."
+        [ngModel]="terminoBusqueda()"
+        (ngModelChange)="terminoBusqueda.set($event)"
+      />
+    </div>
+
+    <div class="filter-group">
+      <span class="filter-label">Tipo:</span>
+      <div class="segmented-control">
+        <button
+          type="button"
+          class="seg-btn"
+          [class.active]="filtroTipo() === 'Todos'"
+          (click)="filtroTipo.set('Todos')">
+          Todos
+        </button>
+        <button
+          type="button"
+          class="seg-btn"
+          [class.active]="filtroTipo() === 'Alimento'"
+          (click)="filtroTipo.set('Alimento')">
+          Alimentos
+        </button>
+        <button
+          type="button"
+          class="seg-btn"
+          [class.active]="filtroTipo() === 'Medicamento'"
+          (click)="filtroTipo.set('Medicamento')">
+          Medicamentos
+        </button>
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <span class="filter-label">Estado:</span>
+      <div class="segmented-control">
+        <button
+          type="button"
+          class="seg-btn"
+          [class.active]="filtroEstado() === 'Todos'"
+          (click)="filtroEstado.set('Todos')">
+          Todos
+        </button>
+        <button
+          type="button"
+          class="seg-btn"
+          [class.active]="filtroEstado() === 'Activos'"
+          (click)="filtroEstado.set('Activos')">
+          Activos
+        </button>
+        <button
+          type="button"
+          class="seg-btn"
+          [class.active]="filtroEstado() === 'ConRetiro'"
+          (click)="filtroEstado.set('ConRetiro')">
+          Retiro Leche
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Listado de Insumos / Medicamentos -->
+  <div class="table-container card">
+    @if (registrosFiltrados().length === 0) {
+      <div class="empty-state">
+        <span class="material-symbols-rounded empty-icon">vaccines</span>
+        <h3>No hay registros de alimentación o sanidad</h3>
+        <p>Los tratamientos y planes de suplementación ingresados desde Android aparecerán aquí para auditoría.</p>
+      </div>
+    } @else {
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Producto / Insumo</th>
+              <th>Destinatario (Animal / Grupo)</th>
+              <th>Tipo & Categoría</th>
+              <th>Dosis / Frecuencia</th>
+              <th>Retiro de Leche</th>
+              <th>Estado</th>
+              <th>Fecha Inicio</th>
+              <th class="text-right">Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (reg of registrosFiltrados(); track reg.id) {
+              <tr>
+                <td>
+                  <strong class="item-title">{{ reg.nombreProducto }}</strong>
+                </td>
+                <td>
+                  <span class="destinatario-chip">{{ reg.objetivoLabel }}</span>
+                </td>
+                <td>
+                  <span class="tipo-tag" [class.med]="reg.tipoRegistro.includes('Medicamento')">
+                    {{ reg.tipoRegistro }}
+                  </span>
+                  <small class="categoria-sub">{{ reg.categoriaDetalle }}</small>
+                </td>
+                <td>
+                  <strong>{{ reg.cantidad }} {{ reg.unidad }}</strong> &bull; {{ reg.frecuencia }}
+                </td>
+                <td>
+                  @if (reg.tieneRetiroLeche) {
+                    <span class="badge-retiro">⚠️ {{ reg.diasRetiro }} días</span>
+                  } @else {
+                    <span class="badge-libre">Sin retiro</span>
+                  }
+                </td>
+                <td>
+                  @if (reg.activo) {
+                    <span class="status-pill active">En tratamiento</span>
+                  } @else {
+                    <span class="status-pill completed">Finalizado</span>
+                  }
+                </td>
+                <td>{{ reg.fechaInicio }}</td>
+                <td class="text-right">
+                  <button
+                    type="button"
+                    class="btn-delete-row"
+                    title="Eliminar registro erróneo"
+                    (click)="pedirConfirmacionEliminar(reg)">
+                    <span class="material-symbols-rounded">delete</span>
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Modal de Confirmación para Eliminar -->
+@if (registroAEliminar()) {
+  <div class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header danger">
+        <span class="material-symbols-rounded">warning</span>
+        <h3>Confirmar Eliminación</h3>
+      </div>
+      <div class="modal-body">
+        <p>¿Está seguro de que desea eliminar el registro de <strong>{{ registroAEliminar()?.nombreProducto }}</strong>?</p>
+        <p class="modal-subtext">Esta acción eliminará el registro de MongoDB y quedará asentada en la bitácora de auditoría.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="cancelarEliminar()">Cancelar</button>
+        <button type="button" class="btn btn-danger" (click)="confirmarEliminacion()">Eliminar Registro</button>
+      </div>
+    </div>
+  </div>
+}

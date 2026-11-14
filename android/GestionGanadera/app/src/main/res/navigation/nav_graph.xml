@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/inicioFragment">
+
+    <fragment
+        android:id="@+id/inicioFragment"
+        android:name="com.juanberrocal.gestionganadera.ui.inicio.InicioFragment"
+        android:label="@string/nav_inicio"
+        tools:layout="@layout/fragment_inicio" />
+    <fragment
+        android:id="@+id/ganadoFragment"
+        android:name="com.juanberrocal.gestionganadera.ui.ganado.GanadoFragment"
+        android:label="@string/nav_ganado" />
+    <fragment
+        android:id="@+id/potrerosFragment"
+        android:name="com.juanberrocal.gestionganadera.ui.potreros.PotrerosFragment"
+        android:label="@string/nav_potreros" />
+    <fragment
+        android:id="@+id/ordenoFragment"
+        android:name="com.juanberrocal.gestionganadera.ui.ordeno.OrdenoFragment"
+        android:label="@string/nav_ordeno" />
+    <fragment
+        android:id="@+id/tareasFragment"
+        android:name="com.juanberrocal.gestionganadera.ui.tareas.TareasFragment"
+        android:label="@string/nav_tareas" />
+    <fragment
+        android:id="@+id/rotacionFragment"
+        android:name="com.juanberrocal.gestionganadera.ui.rotacion.RotacionFragment"
+        android:label="@string/nav_rotacion"
+        tools:layout="@layout/fragment_rotacion" />
+    <fragment
+        android:id="@+id/alimentacionFragment"
+        android:name="com.juanberrocal.gestionganadera.ui.alimentacion.AlimentacionFragment"
+        android:label="@string/nav_alimentacion" />
+</navigation>

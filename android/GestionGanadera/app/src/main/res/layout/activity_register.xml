@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="@color/fondo">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="24dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Crear Cuenta"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            android:textColor="@color/texto"
+            android:layout_marginBottom="24dp" />
+
+        <EditText
+            android:id="@+id/etNombre"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Nombre completo"
+            android:inputType="textPersonName"
+            android:minHeight="48dp"
+            android:layout_marginBottom="16dp"
+            android:padding="12dp"
+            android:background="@color/superficie" />
+
+        <EditText
+            android:id="@+id/etFinca"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Nombre de la finca"
+            android:inputType="text"
+            android:minHeight="48dp"
+            android:layout_marginBottom="16dp"
+            android:padding="12dp"
+            android:background="@color/superficie" />
+
+        <EditText
+            android:id="@+id/etEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Correo electrónico"
+            android:inputType="textEmailAddress"
+            android:minHeight="48dp"
+            android:layout_marginBottom="16dp"
+            android:padding="12dp"
+            android:background="@color/superficie" />
+
+        <EditText
+            android:id="@+id/etPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Contraseña"
+            android:inputType="textPassword"
+            android:minHeight="48dp"
+            android:layout_marginBottom="16dp"
+            android:padding="12dp"
+            android:background="@color/superficie" />
+
+        <EditText
+            android:id="@+id/etConfirmPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Confirmar contraseña"
+            android:inputType="textPassword"
+            android:minHeight="48dp"
+            android:layout_marginBottom="24dp"
+            android:padding="12dp"
+            android:background="@color/superficie" />
+
+        <Button
+            android:id="@+id/btnRegister"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Crear cuenta"
+            android:backgroundTint="@color/verde_primario"
+            android:textColor="@color/blanco"
+            android:minHeight="48dp"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:id="@+id/tvGoToLogin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="¿Ya tienes cuenta? Iniciar sesión"
+            android:textColor="@color/verde_primario"
+            android:textStyle="bold"
+            android:padding="8dp" />
+
+    </LinearLayout>
+</ScrollView>

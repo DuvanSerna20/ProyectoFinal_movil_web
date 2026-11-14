@@ -1,0 +1,349 @@
+<div class="reportes-container">
+  <!-- Barra de Configuración y Botón de Imprimir / Sacar PDF (Oculta al imprimir) -->
+  <div class="report-controls card no-print">
+    <div class="controls-left">
+      <div class="control-label-group">
+        <span class="material-symbols-rounded">picture_as_pdf</span>
+        <div>
+          <h2 class="control-title">Generador de Reportes Oficiales en PDF</h2>
+          <span class="control-sub">Seleccione el tipo de informe que desea exportar o imprimir</span>
+        </div>
+      </div>
+
+      <div class="report-type-selector">
+        <button
+          type="button"
+          class="rep-tab-btn"
+          [class.active]="tipoReporte() === 'general'"
+          (click)="cambiarTipo('general')">
+          Informe General
+        </button>
+        <button
+          type="button"
+          class="rep-tab-btn"
+          [class.active]="tipoReporte() === 'ganado'"
+          (click)="cambiarTipo('ganado')">
+          Inventario Ganado
+        </button>
+        <button
+          type="button"
+          class="rep-tab-btn"
+          [class.active]="tipoReporte() === 'potreros'"
+          (click)="cambiarTipo('potreros')">
+          Potreros & Área
+        </button>
+        <button
+          type="button"
+          class="rep-tab-btn"
+          [class.active]="tipoReporte() === 'ordeno'"
+          (click)="cambiarTipo('ordeno')">
+          Producción Ordeño
+        </button>
+        <button
+          type="button"
+          class="rep-tab-btn"
+          [class.active]="tipoReporte() === 'usuarios'"
+          (click)="cambiarTipo('usuarios')">
+          Usuarios Android
+        </button>
+      </div>
+    </div>
+
+    <div class="controls-right">
+      <button type="button" class="btn btn-action-pdf" (click)="descargarOImprimirPDF()">
+        <span class="material-symbols-rounded">print</span>
+        Imprimir / Guardar como PDF
+      </button>
+    </div>
+  </div>
+
+  <!-- Vista Previa de la Hoja Membretada Oficial del Reporte (Esto es lo que se imprime/guarda en PDF) -->
+  <div class="pdf-document-sheet">
+    <!-- Membrete Oficial -->
+    <header class="sheet-header">
+      <div class="sheet-brand">
+        <div class="sheet-logo-circle">
+          <svg viewBox="0 0 48 48" class="sheet-cow-icon" fill="currentColor">
+            <path d="M12 8c-2 0-3 3-2 6l2 5c-1 2-2 5-2 8 0 7 6 13 14 13s14-6 14-13c0-3-1-6-2-8l2-5c1-3 0-6-2-6-2 0-4 3-5 5-2-1-4-2-7-2s-5 1-7 2c-1-2-3-5-5-5zm6 19c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm12 0c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3z"/>
+          </svg>
+        </div>
+        <div class="sheet-brand-titles">
+          <h1 class="sheet-farm-name">{{ farmService.finca().nombre }}</h1>
+          <span class="sheet-farm-sub">SISTEMA INTEGRADO DE GESTIÓN GANADERA Y ZOOTECNIA</span>
+          <span class="sheet-location">{{ farmService.finca().municipio }} &bull; Propietario: {{ farmService.finca().propietario }}</span>
+        </div>
+      </div>
+
+      <div class="sheet-meta">
+        <div class="meta-row">
+          <span class="meta-label">FOLIO:</span>
+          <strong class="meta-value">{{ folio() }}</strong>
+        </div>
+        <div class="meta-row">
+          <span class="meta-label">FECHA DE EMISIÓN:</span>
+          <strong class="meta-value">{{ fechaEmision() }}</strong>
+        </div>
+        <div class="meta-row">
+          <span class="meta-label">DISPOSITIVO ORIGEN:</span>
+          <span class="meta-badge">Android Sync</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="sheet-divider"></div>
+
+    <!-- Título del Documento Seleccionado -->
+    <div class="sheet-title-section">
+      <h2 class="sheet-doc-title">
+        @switch (tipoReporte()) {
+          @case ('general') { INFORME EJECUTIVO DE GESTIÓN GANADERA Y CAPACIDAD FORRAJERA }
+          @case ('ganado') { INVENTARIO GENERAL DE GANADO BOVINO Y ESTADO PRODUCTIVO }
+          @case ('potreros') { REGISTRO TOPOGRÁFICO DE POTREROS Y ROTACIÓN RACIONAL }
+          @case ('ordeno') { HISTORIAL CONSOLIDADO DE PRODUCCIÓN LECHERA }
+          @case ('usuarios') { PADRÓN DE OPERARIOS Y USUARIOS MÓVILES AUTORIZADOS }
+        }
+      </h2>
+      <p class="sheet-doc-desc">
+        Documento oficial emitido para control zootécnico, auditoría agropecuaria y trazabilidad de campo.
+      </p>
+    </div>
+
+    <!-- Resumen Métrico Cuantitativo en el PDF -->
+    <div class="sheet-kpi-summary">
+      <div class="sheet-kpi-box">
+        <span class="sk-lbl">Cabezas Bovinas</span>
+        <strong class="sk-val">{{ farmService.totalCabezas() }}</strong>
+        <small class="sk-sub">{{ farmService.totalHembras() }}H / {{ farmService.totalMachos() }}M</small>
+      </div>
+
+      <div class="sheet-kpi-box">
+        <span class="sk-lbl">Potreros Totales</span>
+        <strong class="sk-val">{{ farmService.totalPotreros() }}</strong>
+        <small class="sk-sub">{{ farmService.areaTotalHa() }} Hectáreas</small>
+      </div>
+
+      <div class="sheet-kpi-box">
+        <span class="sk-lbl">Producción Leche Hoy</span>
+        <strong class="sk-val">{{ farmService.litrosHoy() }} L</strong>
+        <small class="sk-sub">M: {{ farmService.litrosMananaHoy() }}L / T: {{ farmService.litrosTardeHoy() }}L</small>
+      </div>
+
+      <div class="sheet-kpi-box">
+        <span class="sk-lbl">Personal Móvil</span>
+        <strong class="sk-val">{{ farmService.totalUsuarios() }}</strong>
+        <small class="sk-sub">{{ farmService.usuariosActivos() }} Cuentas activas</small>
+      </div>
+    </div>
+
+    <!-- Contenido Dinámico de la Hoja según el Tipo de Reporte -->
+
+    <!-- Caso 1: Reporte General -->
+    @if (tipoReporte() === 'general') {
+      <div class="sheet-section">
+        <h3 class="sheet-section-title">1. Muestra Representativa del Hato Ganadero</h3>
+        <table class="sheet-table">
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Nombre</th>
+              <th>Raza</th>
+              <th>Sexo</th>
+              <th>Estado Productivo</th>
+              <th>Peso (kg)</th>
+              <th>Registrado Por</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (a of farmService.animales().slice(0, 8); track a.id) {
+              <tr>
+                <td><strong>{{ a.codigo }}</strong></td>
+                <td>{{ a.nombre }}</td>
+                <td>{{ a.raza }}</td>
+                <td>{{ a.sexo }}</td>
+                <td>{{ a.estado }}</td>
+                <td>{{ a.pesoKg }} kg</td>
+                <td>{{ a.registradoPor }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+        <small class="sheet-table-note">* Se muestran los primeros 8 registros sincronizados de un total de {{ farmService.totalCabezas() }} animales.</small>
+      </div>
+
+      <div class="sheet-section mt-4">
+        <h3 class="sheet-section-title">2. Estado y Distribución de Potreros</h3>
+        <table class="sheet-table">
+          <thead>
+            <tr>
+              <th>Nombre Potrero</th>
+              <th>Superficie (m²)</th>
+              <th>Hectáreas (ha)</th>
+              <th>Variedad Forrajera</th>
+              <th>Condición</th>
+              <th>Ciclo (Ocupa / Descansa)</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (p of farmService.potreros().slice(0, 6); track p.id) {
+              <tr>
+                <td><strong>{{ p.nombre }}</strong></td>
+                <td>{{ p.areaM2.toLocaleString('es-CO') }} m²</td>
+                <td>{{ p.areaHa }} ha</td>
+                <td>{{ p.tipoPasto }}</td>
+                <td>{{ p.estado }}</td>
+                <td>{{ p.diasOcupacion }} d / {{ p.diasDescanso }} d</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    <!-- Caso 2: Reporte de Ganado -->
+    @if (tipoReporte() === 'ganado') {
+      <div class="sheet-section">
+        <h3 class="sheet-section-title">Inventario Nominal Consolidado de Ganado</h3>
+        <table class="sheet-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Código</th>
+              <th>Nombre</th>
+              <th>Raza</th>
+              <th>Sexo</th>
+              <th>Estado Fisiológico</th>
+              <th>Peso Aprox.</th>
+              <th>Registrado Por (Móvil)</th>
+              <th>Fecha Ingreso</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (a of farmService.animales(); track a.id; let idx = $index) {
+              <tr>
+                <td>{{ idx + 1 }}</td>
+                <td><strong>{{ a.codigo }}</strong></td>
+                <td>{{ a.nombre }}</td>
+                <td>{{ a.raza }}</td>
+                <td>{{ a.sexo }}</td>
+                <td>{{ a.estado }}</td>
+                <td>{{ a.pesoKg ? a.pesoKg + ' kg' : 'N/R' }}</td>
+                <td>{{ a.registradoPor }}</td>
+                <td>{{ a.fechaRegistro }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    <!-- Caso 3: Reporte de Potreros -->
+    @if (tipoReporte() === 'potreros') {
+      <div class="sheet-section">
+        <h3 class="sheet-section-title">Catastro de Potreros y Lotes de Pastoreo</h3>
+        <table class="sheet-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nombre Potrero</th>
+              <th>Dimensiones (L x A)</th>
+              <th>Área m²</th>
+              <th>Hectáreas</th>
+              <th>Tipo Pasto</th>
+              <th>Estado</th>
+              <th>Días Ocupación</th>
+              <th>Días Descanso</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (p of farmService.potreros(); track p.id; let idx = $index) {
+              <tr>
+                <td>{{ idx + 1 }}</td>
+                <td><strong>{{ p.nombre }}</strong></td>
+                <td>{{ p.largoMetros }}m &times; {{ p.anchoMetros }}m</td>
+                <td>{{ p.areaM2.toLocaleString('es-CO') }} m²</td>
+                <td>{{ p.areaHa }} ha</td>
+                <td>{{ p.tipoPasto }}</td>
+                <td>{{ p.estado }}</td>
+                <td>{{ p.diasOcupacion }} días</td>
+                <td>{{ p.diasDescanso }} días</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    <!-- Caso 4: Reporte de Ordeño -->
+    @if (tipoReporte() === 'ordeno') {
+      <div class="sheet-section">
+        <h3 class="sheet-section-title">Registro Diario de Producción y Recolección Lechera</h3>
+        <table class="sheet-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Fecha</th>
+              <th>Jornada</th>
+              <th>Volumen Recolectado</th>
+              <th>Hora de Pesaje</th>
+              <th>Operario Responsable</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of farmService.registrosOrdeno(); track r.id; let idx = $index) {
+              <tr>
+                <td>{{ idx + 1 }}</td>
+                <td>{{ r.fecha }}</td>
+                <td><strong>{{ r.jornada }}</strong></td>
+                <td><strong class="text-primary">{{ r.litros }} Litros</strong></td>
+                <td>{{ r.horaRegistro }}</td>
+                <td>{{ r.responsable }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    <!-- Caso 5: Reporte de Usuarios -->
+    @if (tipoReporte() === 'usuarios') {
+      <div class="sheet-section">
+        <h3 class="sheet-section-title">Directorio de Cuentas y Operarios Autorizados en Android</h3>
+        <table class="sheet-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nombre de Usuario</th>
+              <th>Rol en la Finca</th>
+              <th>Correo Electrónico</th>
+              <th>Dispositivo Android Vinculado</th>
+              <th>Fecha de Alta</th>
+              <th>Condición</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (u of farmService.usuarios(); track u.id; let idx = $index) {
+              <tr>
+                <td>{{ idx + 1 }}</td>
+                <td><strong>{{ u.nombre }}</strong></td>
+                <td>{{ u.rol }}</td>
+                <td>{{ u.correo }}</td>
+                <td>{{ u.dispositivo }}</td>
+                <td>{{ u.fechaRegistro }}</td>
+                <td>{{ u.estado }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    <!-- Firmas Oficiales y Pie de Documento para Impresión/PDF -->
+    <footer class="sheet-footer">
+      <div class="signature-box">
+        <div class="signature-line"></div>
+        <span class="signer-name">{{ farmService.finca().propietario }}</span>
+        <span class="signer-role">Administrador Principal &bull; Finca La Esperanza</span>
+      </div>
+    </footer>
+  </div>
+</div>

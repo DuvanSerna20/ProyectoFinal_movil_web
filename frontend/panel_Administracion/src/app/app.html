@@ -1,0 +1,157 @@
+<div class="admin-layout" [class.sidebar-collapsed]="sidebarCollapsed()">
+  <!-- Barra Lateral (Sidebar) -->
+  <aside class="admin-sidebar">
+    <!-- Logotipo y Nombre del Sistema -->
+    <div class="sidebar-brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 48 48" class="cow-svg-icon" fill="currentColor">
+          <path d="M12 8c-2 0-3 3-2 6l2 5c-1 2-2 5-2 8 0 7 6 13 14 13s14-6 14-13c0-3-1-6-2-8l2-5c1-3 0-6-2-6-2 0-4 3-5 5-2-1-4-2-7-2s-5 1-7 2c-1-2-3-5-5-5zm6 19c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm12 0c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3z"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <span class="brand-title">Gestión Ganadera</span>
+        <span class="brand-tag">Panel de Auditoría & Control</span>
+      </div>
+    </div>
+
+    <!-- Indicador de Finca y Sincronización Móvil -->
+    <div class="finca-badge-card">
+      <div class="finca-icon">
+        <span class="material-symbols-rounded">phone_android</span>
+      </div>
+      <div class="finca-info">
+        <span class="finca-name">{{ farmService.finca().nombre }}</span>
+        <span class="finca-status">
+          <span class="dot-live"></span> Conectado a Android
+        </span>
+      </div>
+    </div>
+
+    <!-- Navegación Principal -->
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">AUDITORÍA DE CAMPO</div>
+
+      <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
+        <span class="material-symbols-rounded nav-icon">dashboard</span>
+        <span class="nav-text">Resumen</span>
+      </a>
+
+      <a routerLink="/ganado" routerLinkActive="active" class="nav-item">
+        <span class="material-symbols-rounded nav-icon">pets</span>
+        <span class="nav-text">Registro de Ganado</span>
+        <span class="nav-badge">{{ farmService.totalCabezas() }}</span>
+      </a>
+
+      <a routerLink="/potreros" routerLinkActive="active" class="nav-item">
+        <span class="material-symbols-rounded nav-icon">grid_view</span>
+        <span class="nav-text">Registro de Potreros</span>
+        <span class="nav-badge">{{ farmService.totalPotreros() }}</span>
+      </a>
+
+      <a routerLink="/rotacion" routerLinkActive="active" class="nav-item">
+        <span class="material-symbols-rounded nav-icon">sync</span>
+        <span class="nav-text">Planes de Rotación</span>
+        <span class="nav-pill-highlight">Zootecnia</span>
+      </a>
+
+      <a routerLink="/ordeno" routerLinkActive="active" class="nav-item">
+        <span class="material-symbols-rounded nav-icon">water_drop</span>
+        <span class="nav-text">Historial de Ordeño</span>
+        <span class="nav-badge milk-badge">{{ farmService.litrosHoy() }} L</span>
+      </a>
+
+      <a routerLink="/tareas" routerLinkActive="active" class="nav-item">
+        <span class="material-symbols-rounded nav-icon">task_alt</span>
+        <span class="nav-text">Auditoría de Tareas</span>
+        @if (farmService.tareasPendientes() > 0) {
+          <span class="nav-badge alert-badge">{{ farmService.tareasPendientes() }}</span>
+        }
+      </a>
+
+      <a routerLink="/alimentacion" routerLinkActive="active" class="nav-item">
+        <span class="material-symbols-rounded nav-icon">medication</span>
+        <span class="nav-text">Alimentación & Sanidad</span>
+        @if (farmService.tratamientosRetiro() > 0) {
+          <span class="nav-badge alert-badge">{{ farmService.tratamientosRetiro() }}</span>
+        }
+      </a>
+
+      <div class="nav-section-label">GESTIÓN & REPORTES</div>
+
+      <a routerLink="/usuarios" routerLinkActive="active" class="nav-item">
+        <span class="material-symbols-rounded nav-icon">manage_accounts</span>
+        <span class="nav-text">Usuarios Móviles</span>
+        <span class="nav-badge">{{ farmService.totalUsuarios() }}</span>
+      </a>
+
+      <a routerLink="/reportes" routerLinkActive="active" class="nav-item">
+        <span class="material-symbols-rounded nav-icon">picture_as_pdf</span>
+        <span class="nav-text">Sacar Reporte PDF</span>
+        <span class="nav-pill-pdf">PDF</span>
+      </a>
+
+      <a routerLink="/cuenta" routerLinkActive="active" class="nav-item">
+        <span class="material-symbols-rounded nav-icon">account_circle</span>
+        <span class="nav-text">Mi Cuenta Admin</span>
+      </a>
+    </nav>
+
+    <!-- Pie del Sidebar con Aviso de No Agregar -->
+    <div class="sidebar-footer">
+      <div class="admin-mode-pill">
+        <span class="material-symbols-rounded icon-subtle">shield</span>
+        <div class="mode-text">
+          <strong>Modo Auditoría</strong>
+          <small>Edición / Borrado & PDF</small>
+        </div>
+      </div>
+      <a routerLink="/cuenta" class="user-profile-widget mt-2">
+        <div class="user-avatar-circle">JB</div>
+        <div class="user-details">
+          <span class="user-name">Juan Pablo Berrocal</span>
+          <span class="user-role">Super Administrador</span>
+        </div>
+      </a>
+    </div>
+  </aside>
+
+  <!-- Contenedor Principal (Main Content) -->
+  <div class="admin-main">
+    <!-- Barra Superior (Header) -->
+    <header class="admin-topbar">
+      <div class="topbar-left">
+        <button type="button" class="btn-icon-only toggle-btn" (click)="toggleSidebar()" title="Colapsar menú">
+          <span class="material-symbols-rounded">menu</span>
+        </button>
+        <div class="topbar-title-block">
+          <span class="topbar-greeting">Panel de Supervisión y Auditoría</span>
+          <span class="topbar-date">
+            <span class="material-symbols-rounded icon-mini">calendar_today</span>
+            {{ farmService.fechaLegible() }} &bull; Sincronizado con Android
+          </span>
+        </div>
+      </div>
+
+      <!-- Métricas Rápidas y Botón de Sacar PDF -->
+      <div class="topbar-right">
+        <a routerLink="/reportes" class="btn btn-pdf-export" title="Exportar informe oficial en PDF">
+          <span class="material-symbols-rounded">picture_as_pdf</span>
+          <span>Sacar PDF</span>
+        </a>
+
+        <div class="topbar-divider"></div>
+
+        <!-- Botón a Mi Cuenta -->
+        <a routerLink="/cuenta" class="topbar-user-btn">
+          <div class="avatar-mini">JB</div>
+          <span class="topbar-user-name">Juan P. Berrocal</span>
+        </a>
+      </div>
+    </header>
+
+    <!-- Contenido de Rutas -->
+    <main class="page-content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

@@ -1,0 +1,209 @@
+<div class="rotacion-container">
+  <!-- Encabezado de la Sección -->
+  <div class="page-intro-header">
+    <div class="intro-titles">
+      <span class="badge badge-success mb-2">Herramienta de Gestión Racional</span>
+      <h1 class="page-title">Rotación de Potreros</h1>
+      <p class="page-subtitle">
+        Calcule cada cuánto cambiar el ganado de potrero, cuántos potreros necesita y cuánto dura un ciclo completo para preservar la biomasa forrajera.
+      </p>
+    </div>
+  </div>
+
+  <div class="rotacion-layout-grid">
+    <!-- Columna Izquierda: Formulario de Cálculo (Idéntico a Pantalla 8 del Mockup) -->
+    <div class="card form-calc-card">
+      <div class="card-heading">
+        <div class="heading-icon">
+          <span class="material-symbols-rounded">tune</span>
+        </div>
+        <div>
+          <h2 class="card-title">Parámetros de Pastoreo</h2>
+          <span class="card-subtitle">Ingrese los datos para ejecutar el algoritmo de rotación</span>
+        </div>
+      </div>
+
+      <form (ngSubmit)="ejecutarCalculo()" class="calc-form">
+        <!-- Potrero (Opcional) -->
+        <div class="form-group">
+          <label class="form-label" for="rot-potrero">
+            Potrero de inicio (opcional)
+          </label>
+          <select
+            id="rot-potrero"
+            class="form-select"
+            [(ngModel)]="potreroSeleccionadoId"
+            (change)="alCambiarPotrero()"
+            name="potreroSeleccionadoId">
+            <option value="">-- Sin potrero específico --</option>
+            @for (p of farmService.potreros(); track p.id) {
+              <option [value]="p.id">{{ p.nombre }} ({{ p.areaHa }} ha - Pasto {{ p.tipoPasto }})</option>
+            }
+          </select>
+          <span class="form-hint">Seleccione un potrero para auto-completar sus días de descanso</span>
+        </div>
+
+        <div class="form-row-2">
+          <!-- Días de Ocupación -->
+          <div class="form-group">
+            <label class="form-label" for="rot-ocup">
+              Días de ocupación <span class="required">*</span>
+            </label>
+            <input
+              id="rot-ocup"
+              type="number"
+              class="form-input"
+              [(ngModel)]="diasOcupacion"
+              (ngModelChange)="ejecutarCalculo()"
+              name="diasOcupacion"
+              min="1"
+              max="30"
+              required
+            />
+            <span class="form-hint">Tiempo que el ganado permanece en el lote</span>
+          </div>
+
+          <!-- Días de Descanso -->
+          <div class="form-group">
+            <label class="form-label" for="rot-desc">
+              Días de descanso <span class="required">*</span>
+            </label>
+            <input
+              id="rot-desc"
+              type="number"
+              class="form-input"
+              [(ngModel)]="diasDescanso"
+              (ngModelChange)="ejecutarCalculo()"
+              name="diasDescanso"
+              min="1"
+              max="120"
+              required
+            />
+            <span class="form-hint">Tiempo de recuperación del forraje</span>
+          </div>
+        </div>
+
+        <!-- Fecha de Ingreso del Ganado -->
+        <div class="form-group">
+          <label class="form-label" for="rot-fecha">
+            Fecha de ingreso del ganado <span class="required">*</span>
+          </label>
+          <input
+            id="rot-fecha"
+            type="date"
+            class="form-input"
+            [(ngModel)]="fechaIngreso"
+            (ngModelChange)="ejecutarCalculo()"
+            name="fechaIngreso"
+            required
+          />
+        </div>
+
+        <!-- Botón Calcular Rotación -->
+        <button type="submit" class="btn btn-primary btn-calc-action">
+          <span class="material-symbols-rounded">sync</span>
+          Calcular rotación
+        </button>
+      </form>
+
+      <!-- Fórmulas Ganaderas Explicadas -->
+      <div class="formulas-info-box">
+        <span class="formulas-title">Fórmulas del Modelo Zootécnico:</span>
+        <ul class="formulas-list">
+          <li><strong>Potreros necesarios:</strong> (Días descanso / Días ocupación) + 1</li>
+          <li><strong>Tiempo total de regulación:</strong> Días ocupación &times; Potreros necesarios</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Columna Derecha: Tarjeta de Resultados (Mockup Pantalla 8) -->
+    <div class="results-column">
+      @if (resultado()) {
+        <div class="card result-card">
+          <div class="result-header">
+            <div class="result-icon-badge">
+              <span class="material-symbols-rounded">verified</span>
+            </div>
+            <div>
+              <h2 class="result-title">Resultado de la rotación</h2>
+              <span class="result-subtitle">Pronóstico zootécnico generado para la finca</span>
+            </div>
+          </div>
+
+          <div class="results-display-list">
+            <!-- Item 1: Cambiar de potrero cada -->
+            <div class="result-item">
+              <span class="res-label">Cambiar de potrero cada</span>
+              <span class="res-value text-primary">
+                {{ resultado()?.diasOcupacion }} días
+              </span>
+            </div>
+
+            <!-- Item 2: Próximo cambio de potrero -->
+            <div class="result-item">
+              <span class="res-label">Próximo cambio de potrero</span>
+              <span class="res-value text-primary font-xl">
+                {{ resultado()?.proximaFechaCambio }}
+              </span>
+            </div>
+
+            <!-- Item 3: Potreros necesarios -->
+            <div class="result-item">
+              <div class="res-label-block">
+                <span class="res-label">Potreros necesarios</span>
+                <small class="res-sub">Para no sobrepastorear ningún lote</small>
+              </div>
+              <span class="res-value text-earth font-xl">
+                {{ resultado()?.potrerosNecesarios }}
+              </span>
+            </div>
+
+            <!-- Item 4: Tiempo total de regulación -->
+            <div class="result-item border-none">
+              <div class="res-label-block">
+                <span class="res-label">Tiempo total de regulación del terreno</span>
+                <small class="res-sub">Duración de un ciclo completo de pastoreo</small>
+              </div>
+              <span class="res-value text-primary font-xl">
+                {{ resultado()?.tiempoTotalRegulacion }} días
+              </span>
+            </div>
+          </div>
+
+          <!-- Alerta de Capacidad de Potreros (Exactamente del Mockup) -->
+          @if (resultado()?.alcanzanPotreros) {
+            <div class="capacity-banner success">
+              <span class="material-symbols-rounded cap-icon">task_alt</span>
+              <div class="cap-text">
+                <strong>Tiene {{ farmService.totalPotreros() }} potreros registrados: alcanzan.</strong>
+                <p>Su finca cumple satisfactoriamente con la cantidad mínima de lotes para completar el ciclo sin degradar los pastos.</p>
+              </div>
+            </div>
+          } @else {
+            <div class="capacity-banner warning">
+              <span class="material-symbols-rounded cap-icon">warning</span>
+              <div class="cap-text">
+                <strong>Faltan {{ resultado()?.potrerosFaltantes }} potreros registrados</strong>
+                <p>Necesita {{ resultado()?.potrerosNecesarios }} potreros y su finca tiene {{ farmService.totalPotreros() }}. Considere subdividir con cerca eléctrica o aumentar días de descanso.</p>
+              </div>
+            </div>
+          }
+
+          <!-- Diagrama Visual de la Secuencia de Rotación -->
+          <div class="cycle-timeline-card mt-3">
+            <h4 class="timeline-title">Secuencia de Lotes en el Ciclo</h4>
+            <div class="timeline-steps">
+              @for (p of farmService.potreros().slice(0, resultado()?.potrerosNecesarios); track p.id; let idx = $index) {
+                <div class="timeline-step" [class.active-step]="idx === 0">
+                  <div class="step-circle">{{ idx + 1 }}</div>
+                  <span class="step-name">{{ p.nombre }}</span>
+                  <small class="step-days">{{ resultado()?.diasOcupacion }} d</small>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

@@ -1,0 +1,95 @@
+<div class="cuenta-container">
+  <div class="cuenta-card-box card">
+    <!-- Perfil Superior (Idéntico a Pantalla 11 del Mockup) -->
+    <div class="cuenta-profile-header">
+      <div class="avatar-large-circle">JB</div>
+      <h2 class="profile-name">{{ farmService.finca().propietario }}</h2>
+      <span class="profile-created">Cuenta creada el {{ farmService.finca().fechaCreacion }}</span>
+      <span class="badge badge-success mt-2">Super Administrador Web</span>
+    </div>
+
+    <!-- Campos Informativos -->
+    @if (!modoEdicion()) {
+      <div class="cuenta-data-list">
+        <div class="cuenta-data-item">
+          <span class="data-lbl">Nombre</span>
+          <strong class="data-val">{{ farmService.finca().propietario }}</strong>
+        </div>
+
+        <div class="cuenta-data-item">
+          <span class="data-lbl">Finca</span>
+          <strong class="data-val">{{ farmService.finca().nombre }}</strong>
+        </div>
+
+        <div class="cuenta-data-item">
+          <span class="data-lbl">Correo electrónico</span>
+          <strong class="data-val">{{ farmService.finca().correo }}</strong>
+        </div>
+
+        <div class="cuenta-data-item">
+          <span class="data-lbl">Ubicación y Municipio</span>
+          <strong class="data-val">{{ farmService.finca().municipio }}</strong>
+        </div>
+
+        <div class="cuenta-data-item">
+          <span class="data-lbl">Teléfono de Contacto</span>
+          <strong class="data-val">{{ farmService.finca().telefono }}</strong>
+        </div>
+      </div>
+
+      <div class="cuenta-actions-list">
+        <button type="button" class="btn btn-outline w-100" (click)="modoEdicion.set(true)">
+          <span class="material-symbols-rounded">edit</span>
+          Editar perfil de la finca
+        </button>
+      </div>
+    } @else {
+      <!-- Formulario de Edición -->
+      <form (ngSubmit)="guardarCambios()" class="cuenta-form-edit">
+        <div class="form-group">
+          <label class="form-label">Nombre del propietario</label>
+          <input type="text" class="form-input" [(ngModel)]="nombre" name="nombre" required />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Nombre de la finca</label>
+          <input type="text" class="form-input" [(ngModel)]="finca" name="finca" required />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Correo electrónico</label>
+          <input type="email" class="form-input" [(ngModel)]="correo" name="correo" required />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Ubicación</label>
+          <input type="text" class="form-input" [(ngModel)]="municipio" name="municipio" required />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Teléfono</label>
+          <input type="text" class="form-input" [(ngModel)]="telefono" name="telefono" required />
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="cancelar()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">
+            <span class="material-symbols-rounded">save</span>
+            Guardar cambios
+          </button>
+        </div>
+      </form>
+    }
+
+    <!-- Información de Conectividad con Android -->
+    <div class="android-integration-box mt-4">
+      <div class="integration-icon">
+        <span class="material-symbols-rounded">phone_android</span>
+      </div>
+      <div class="integration-info">
+        <strong>Sincronización con Android Studio</strong>
+        <p>Los dispositivos móviles con la app instalada envían sus datos en tiempo real a este panel. Se aplican las políticas de seguridad: captura exclusiva en campo y auditoría/borrado en web.</p>
+      </div>
+    </div>
+  </div>
+</div>

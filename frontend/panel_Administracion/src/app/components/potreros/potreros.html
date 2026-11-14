@@ -1,0 +1,177 @@
+<div class="potreros-container">
+  <!-- Encabezado con Totalizador y Botón de Sacar PDF -->
+  <div class="section-top-bar">
+    <div class="title-with-kpi">
+      <div class="total-pastures-card">
+        <div class="total-pasture-icon">
+          <span class="material-symbols-rounded">grid_view</span>
+        </div>
+        <div class="total-info">
+          <span class="total-label">Potreros en Auditoría</span>
+          <span class="total-value">{{ farmService.totalPotreros() }}</span>
+        </div>
+      </div>
+
+      <div class="stat-pills">
+        <div class="sub-stat">
+          <span class="badge badge-success">{{ farmService.potrerosDescanso() }} En descanso</span>
+        </div>
+        <div class="sub-stat">
+          <span class="badge badge-ocupado">{{ farmService.potrerosOcupados() }} Ocupados</span>
+        </div>
+        <div class="sub-stat">
+          <span class="badge badge-earth">{{ farmService.areaTotalHa() }} ha Totales</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botón de Exportar a PDF (Sin botón de agregar) -->
+    <div class="top-actions">
+      <button type="button" class="btn btn-pdf" (click)="exportarPDF()">
+        <span class="material-symbols-rounded">picture_as_pdf</span>
+        Sacar PDF de Potreros
+      </button>
+    </div>
+  </div>
+
+
+  <!-- Barra de Búsqueda y Filtros -->
+  <div class="filter-toolbar card">
+    <div class="search-box">
+      <span class="material-symbols-rounded search-icon">search</span>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Buscar potrero o tipo de pasto..."
+        [ngModel]="searchTerm()"
+        (ngModelChange)="searchTerm.set($event)"
+      />
+      @if (searchTerm()) {
+        <button class="clear-search-btn" (click)="searchTerm.set('')">
+          <span class="material-symbols-rounded">close</span>
+        </button>
+      }
+    </div>
+
+    <div class="filter-controls">
+      <div class="filter-group">
+        <span class="filter-label">Estado:</span>
+        <div class="segmented-control">
+          <button
+            type="button"
+            class="seg-btn"
+            [class.active]="filtroEstado() === 'Todos'"
+            (click)="filtroEstado.set('Todos')">
+            Todos
+          </button>
+          <button
+            type="button"
+            class="seg-btn"
+            [class.active]="filtroEstado() === 'En descanso'"
+            (click)="filtroEstado.set('En descanso')">
+            En descanso
+          </button>
+          <button
+            type="button"
+            class="seg-btn"
+            [class.active]="filtroEstado() === 'Ocupado'"
+            (click)="filtroEstado.set('Ocupado')">
+            Ocupados
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lista de Potreros (Estilo Pantalla 7 del Mockup con Botón de Borrar y Rotación) -->
+  <div class="potreros-grid">
+    @for (potrero of potrerosFiltrados(); track potrero.id) {
+      <div class="potrero-card">
+        <div class="potrero-header">
+          <div class="potrero-icon-avatar" [class.ocupado]="potrero.estado === 'Ocupado'">
+            <span class="material-symbols-rounded">grid_view</span>
+          </div>
+
+          <div class="potrero-title-area">
+            <h3 class="potrero-name">{{ potrero.nombre }}</h3>
+            <span class="potrero-area-text">
+              Área: {{ potrero.areaM2.toLocaleString('es-CO') }} m² = {{ potrero.areaHa }} ha
+            </span>
+          </div>
+
+          <!-- Botón de Borrar Potrero -->
+          <div class="potrero-header-actions">
+            <button
+              type="button"
+              class="btn-icon-only danger"
+              (click)="solicitarEliminar(potrero)"
+              title="Borrar potrero">
+              <span class="material-symbols-rounded">delete</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="potrero-badge-row">
+          <span class="badge" [class.badge-ocupado]="potrero.estado === 'Ocupado'" [class.badge-descanso]="potrero.estado === 'En descanso'">
+            {{ potrero.estado }}
+          </span>
+          <span class="badge badge-info">Pasto {{ potrero.tipoPasto }}</span>
+        </div>
+
+        <div class="potrero-cycle-text">
+          Ocupa {{ potrero.diasOcupacion }} d &bull; Descansa {{ potrero.diasDescanso }} d
+        </div>
+
+        <div class="potrero-audit-mini">
+          <span class="material-symbols-rounded mini-icon">person</span>
+          <span>Registrado por <strong>{{ potrero.registradoPor }}</strong> ({{ potrero.fechaRegistro }})</span>
+        </div>
+
+        <!-- Botón Rotación (Abre el cálculo zootécnico) -->
+        <button
+          type="button"
+          class="btn btn-outline btn-rotation-link"
+          (click)="irARotacionConPotrero(potrero)">
+          <span class="material-symbols-rounded">sync</span>
+          Calcular Rotación de este Potrero
+        </button>
+      </div>
+    } @empty {
+      <div class="empty-state card">
+        <span class="material-symbols-rounded empty-icon">grid_off</span>
+        <h3>No se encontraron potreros</h3>
+        <p>No hay lotes que coincidan con la búsqueda. Recuerde que el alta de potreros se hace desde la app Android.</p>
+      </div>
+    }
+  </div>
+
+  <!-- Modal Confirmar Eliminación -->
+  @if (modalEliminarAbierto() && potreroAEliminar()) {
+    <div class="modal-backdrop" (click)="cancelarEliminar()">
+      <div class="modal-card modal-sm" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2 class="modal-title text-danger">
+            <span class="material-symbols-rounded">warning</span>
+            Confirmar eliminación
+          </h2>
+          <button type="button" class="btn-icon-only" (click)="cancelarEliminar()">
+            <span class="material-symbols-rounded">close</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>¿Está seguro de que desea eliminar el <strong>{{ potreroAEliminar()?.nombre }}</strong>?</p>
+          <p class="text-muted mt-2">Superficie: {{ potreroAEliminar()?.areaHa }} ha. Al borrarlo se actualizará el total de hectáreas y los ciclos de pastoreo en la app de Android.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="cancelarEliminar()">
+            Cancelar
+          </button>
+          <button type="button" class="btn btn-danger-outline" (click)="confirmarEliminar()">
+            <span class="material-symbols-rounded">delete</span>
+            Sí, borrar potrero
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Gestión Ganadera</string>
+
+    <!-- Navegación -->
+    <string name="nav_inicio">Inicio</string>
+    <string name="nav_ganado">Ganado</string>
+    <string name="nav_potreros">Potreros</string>
+    <string name="nav_ordeno">Ordeño</string>
+    <string name="nav_tareas">Tareas</string>
+    <string name="nav_rotacion">Rotación</string>
+    <string name="nav_alimentacion">Alimentación y Medicamentos</string>
+
+    <!-- Comunes -->
+    <string name="guardar">Guardar</string>
+    <string name="cancelar">Cancelar</string>
+    <string name="editar">Editar</string>
+    <string name="eliminar">Eliminar</string>
+    <string name="eliminar_titulo">¿Está seguro?</string>
+    <string name="eliminar_si">Sí, eliminar</string>
+    <string name="elegir_fecha">Elija la fecha</string>
+    <string name="error_obligatorio">Este campo es obligatorio</string>
+    <string name="error_codigo_repetido">Ya existe un animal con ese código</string>
+    <string name="error_numero_mayor_cero">Escriba un número mayor a 0</string>
+    <string name="error_litros">Escriba los litros (un número mayor a 0)</string>
+
+    <!-- Inicio -->
+    <string name="inicio_titulo">Resumen de la finca</string>
+    <string name="inicio_cabezas">Cabezas de ganado</string>
+    <string name="inicio_potreros">Potreros</string>
+    <string name="inicio_litros_hoy">Litros de leche hoy</string>
+    <string name="inicio_tareas_pendientes">Tareas pendientes</string>
+    <string name="inicio_ir_rotacion">Calcular rotación de potreros</string>
+    <string name="inicio_ir_alimentacion">Alimentación y Medicamentos</string>
+
+    <!-- Ganado -->
+    <string name="ganado_total_titulo">Total de cabezas de ganado</string>
+    <string name="ganado_vacio">Aún no hay animales registrados.\nToque «Agregar animal» para empezar.</string>
+    <string name="ganado_agregar">Agregar animal</string>
+    <string name="ganado_editar">Editar animal</string>
+    <string name="ganado_confirmar_eliminar">¿Desea eliminar a %1$s? Esta acción no se puede deshacer.</string>
+    <string name="ganado_eliminado">Animal eliminado</string>
+    <string name="ganado_guardado">Animal guardado</string>
+    <string name="ganado_actualizado">Animal actualizado</string>
+    <string name="animal_codigo">Código</string>
+    <string name="animal_nombre">Nombre</string>
+    <string name="animal_raza">Raza</string>
+    <string name="animal_sexo">Sexo</string>
+    <string name="sexo_hembra">Hembra</string>
+    <string name="sexo_macho">Macho</string>
+    <string name="ganado_otros_animales">Otros animales en finca: %1$d</string>
+    <string name="ganado_buscar">Buscar por nombre o código</string>
+    <string name="ganado_limpiar_busqueda">Limpiar búsqueda</string>
+    <string name="ganado_sin_resultados">Ningún animal coincide con la búsqueda o el filtro.</string>
+    <string name="ganado_acciones">Más acciones</string>
+    <string name="filtro_todos">Todos</string>
+    <string name="filtro_ordeno">En ordeño</string>
+    <string name="filtro_secas">Secas</string>
+    <string name="filtro_otros">Otros animales</string>
+    <string name="animal_codigo_chapeta">Código / Chapeta</string>
+    <string name="animal_codigo_ayuda">Sin espacios. Ej.: 008</string>
+    <string name="animal_especie">Especie</string>
+    <string name="animal_raza_manual">Escriba la raza</string>
+    <string name="animal_raza_cruce">Describa la raza o el cruce</string>
+    <string name="animal_potrero">Potrero (opcional)</string>
+    <string name="animal_sin_potrero">Sin potrero asignado</string>
+    <string name="animal_sin_potreros_registrados">Aún no hay potreros registrados</string>
+    <string name="animal_seleccione">Seleccione una opción</string>
+    <string name="error_seleccione_raza">Seleccione una raza</string>
+    <string name="ganado_resumen_hembras">%1$d en ordeño · %2$d cargadas · %3$d horras · %4$d cría/engorde</string>
+    <string name="ganado_resumen_machos">%1$d toros reprod. · %2$d en ceba · Peso prom: %3$s</string>
+    <string name="ganado_sin_dato">—</string>
+    <string name="ganado_actualizar_rapido">Actualizar peso / estado</string>
+    <string name="filtro_cargadas">Cargadas</string>
+    <string name="filtro_horras">Horras</string>
+    <string name="filtro_crianza">Crianza</string>
+    <string name="filtro_ceba">Ceba/Engorde</string>
+    <string name="filtro_toros">Toros Reprod.</string>
+    <string name="animal_seccion_identificacion">1. Identificación y ubicación</string>
+    <string name="animal_seccion_clasificacion">2. Clasificación básica</string>
+    <string name="animal_seccion_proposito">3. Propósito y estado reproductivo</string>
+    <string name="animal_seccion_productivo">4. Datos productivos y peso</string>
+    <string name="animal_finca">Finca (opcional)</string>
+    <string name="animal_sin_finca">Sin finca asignada</string>
+    <string name="animal_proposito">Propósito / Etapa</string>
+    <string name="animal_estado_reproductivo">Estado reproductivo</string>
+    <string name="animal_peso">Peso actual</string>
+    <string name="animal_peso_obligatorio">Obligatorio para ceba, engorde y reproducción</string>
+    <string name="animal_peso_ayuda">Opcional · sirve para el control general</string>
+    <string name="animal_produccion">Producción base / promedio</string>
+    <string name="animal_produccion_ayuda">La vaca quedará habilitada automáticamente en el módulo de Ordeño</string>
+    <string name="animal_metrica_peso">Peso: %1$s kg</string>
+    <string name="animal_metrica_sin_peso">Sin peso</string>
+    <string name="animal_metrica_produccion">Producción: %1$s L/día</string>
+    <string name="unidad_kg">kg</string>
+    <string name="unidad_litros_dia">L/día</string>
+    <string name="error_peso">Escriba un peso mayor a 0</string>
+    <string name="ordeno_vaca">Vaca (opcional)</string>
+    <string name="ordeno_todo_hato">Todo el hato (total)</string>
+    <string name="ordeno_vaca_ayuda">Al elegir una vaca se actualiza su producción diaria</string>
+    <string name="error_guardar_servidor">No se pudo guardar: el código ya existe o no hay conexión con el servidor</string>
+
+    <!-- Potreros -->
+    <string name="potreros_total_titulo">Total de potreros</string>
+    <string name="potreros_vacio">Aún no hay potreros registrados.\nToque «Agregar potrero» para empezar.</string>
+    <string name="potreros_agregar">Agregar potrero</string>
+    <string name="potreros_editar">Editar potrero</string>
+    <string name="potreros_confirmar_eliminar">¿Desea eliminar el potrero %1$s? Esta acción no se puede deshacer.</string>
+    <string name="potreros_eliminado">Potrero eliminado</string>
+    <string name="potreros_guardado">Potrero guardado</string>
+    <string name="potreros_actualizado">Potrero actualizado</string>
+    <string name="potreros_ver_rotacion">Rotación</string>
+    <string name="potreros_vacio_finca">Esta finca aún no tiene potreros.\nToque «Agregar potrero» para empezar.</string>
+    <string name="potreros_sin_fincas">Primero registre una finca con «Nueva finca» para poder agregar potreros.</string>
+    <string name="potreros_resumen_finca">%1$d potreros en %2$s</string>
+    <string name="potreros_resumen_empresa">%1$d potreros en total</string>
+    <string name="potreros_resumen_fincas">%1$d fincas activas en %2$d departamentos</string>
+    <string name="potreros_resumen_estados">%1$d ocupados · %2$d listos · %3$d en descanso</string>
+    <string name="potreros_resumen_area">Área total: %1$s ha</string>
+    <string name="potreros_error_guardar">No se pudo guardar: revise que el nombre no esté repetido y la conexión con el servidor</string>
+    <string name="potrero_finca">Finca</string>
+    <string name="potrero_sin_finca">Sin finca asignada</string>
+    <string name="potrero_area">Área</string>
+    <string name="potrero_unidad">Unidad</string>
+    <string name="potrero_usar_largo_ancho">Calcular usando Largo × Ancho (m)</string>
+    <string name="potrero_area_calculada">= %1$s m² · %2$s ha</string>
+    <string name="potrero_tipo_pasto">Tipo de pasto</string>
+    <string name="potrero_pasto_recomendado">%1$s (recomendado)</string>
+    <string name="potrero_pasto_sugerencia">Descanso sugerido: %1$d días · ideal para %2$s</string>
+    <string name="potrero_ocupacion">Ocupación</string>
+    <string name="potrero_descanso">Descanso</string>
+    <string name="potrero_sufijo_dias">días</string>
+    <string name="potrero_ocupacion_ayuda">Admite medios días (0,5)</string>
+    <string name="potrero_animales">Animales en el potrero</string>
+    <string name="potrero_estado">Estado</string>
+    <string name="potrero_condicion">Condición del pasto</string>
+    <string name="potrero_nombre_repetido">Ya existe un potrero con ese nombre en esta finca</string>
+    <string name="potrero_animales_cuenta">%1$d animales</string>
+    <string name="potrero_progreso_ocupacion">Ocupación: día %1$s de %2$s</string>
+    <string name="potrero_progreso_ocupacion_cumplida">Cumplió la ocupación: hora de rotar</string>
+    <string name="potrero_progreso_descanso">Descanso: día %1$s de %2$s</string>
+    <string name="potrero_progreso_descanso_cumplido">Descanso cumplido: puede marcarlo como listo</string>
+    <string name="potrero_alerta_pasto_bajo">Pasto bajo / agotado: conviene mover el ganado</string>
+    <string name="potrero_alerta_encharcado">Potrero encharcado: evite el pisoteo</string>
+    <string name="potrero_rotar">Rotar / Mover ganado</string>
+    <string name="potrero_marcar_listo">Marcar como listo</string>
+    <string name="potrero_calcular_rotacion">Calcular rotación</string>
+    <string name="potrero_marcado_listo">Potrero listo para pastoreo</string>
+    <string name="finca_nueva">Nueva finca</string>
+    <string name="finca_todas">Todas las fincas</string>
+    <string name="finca_nombre">Nombre de la finca</string>
+    <string name="finca_departamento">Departamento</string>
+    <string name="finca_municipio">Municipio</string>
+    <string name="finca_piso_termico">Piso térmico</string>
+    <string name="finca_nombre_repetido">Ya existe una finca con ese nombre</string>
+    <string name="finca_guardada">Finca registrada</string>
+    <string name="finca_error_guardar">No se pudo registrar la finca: revise la conexión con el servidor</string>
+    <string name="rotar_titulo">Mover ganado de %1$s</string>
+    <string name="rotar_subtitulo">%1$d animales · solo potreros listos de %2$s</string>
+    <string name="rotar_destino">Potrero de destino</string>
+    <string name="rotar_motivo">Motivo de la rotación</string>
+    <string name="rotar_sin_destinos">No hay potreros «Listo para pastoreo» en %1$s. Marque uno como listo para poder rotar.</string>
+    <string name="rotar_confirmar">Mover ganado</string>
+    <string name="rotar_exito">Ganado movido a %1$s</string>
+    <string name="rotar_sin_finca">Asigne una finca a este potrero para poder rotar</string>
+    <string name="potrero_nombre">Nombre del potrero</string>
+    <string name="potrero_largo">Largo (m)</string>
+    <string name="potrero_ancho">Ancho (m)</string>
+    <string name="potrero_dias_ocupacion">Días de ocupación</string>
+    <string name="potrero_dias_descanso">Días de descanso</string>
+    <string name="potrero_area_vacia">Área: escriba largo y ancho</string>
+    <string name="potrero_area_vista">Área: %1$s m² = %2$s ha</string>
+
+    <!-- Rotación -->
+    <string name="rotacion_explicacion">Calcule cada cuánto cambiar el ganado de potrero, cuántos potreros necesita y cuánto dura un ciclo completo. Puede elegir un potrero registrado o escribir los días a mano.</string>
+    <string name="rotacion_potrero">Potrero (opcional)</string>
+    <string name="rotacion_fecha_ingreso">Fecha de ingreso del ganado</string>
+    <string name="rotacion_calcular">Calcular rotación</string>
+    <string name="rotacion_resultado">Resultado de la rotación</string>
+    <string name="rotacion_cada">Cambiar de potrero cada</string>
+    <string name="rotacion_proximo_cambio">Próximo cambio de potrero</string>
+    <string name="rotacion_potreros_necesarios">Potreros necesarios</string>
+    <string name="rotacion_tiempo_total">Tiempo total de regulación del terreno</string>
+    <string name="rotacion_alcanzan">Tiene %1$d potreros registrados: alcanzan para esta rotación.</string>
+    <string name="rotacion_faltan">Tiene %1$d potreros registrados: le faltan %2$d para esta rotación.</string>
+
+    <!-- Ordeño -->
+    <string name="ordeno_total_dia">Litros ordeñados en el día</string>
+    <string name="ordeno_vacio">Aún no hay ordeños registrados.\nToque «Registrar ordeño» para empezar.</string>
+    <string name="ordeno_agregar">Registrar ordeño</string>
+    <string name="ordeno_editar">Editar ordeño</string>
+    <string name="ordeno_confirmar_eliminar">¿Desea eliminar el ordeño del %1$s (%2$s)? Esta acción no se puede deshacer.</string>
+    <string name="ordeno_eliminado">Ordeño eliminado</string>
+    <string name="ordeno_guardado">Ordeño guardado</string>
+    <string name="ordeno_actualizado">Ordeño actualizado</string>
+    <string name="ordeno_fecha">Fecha</string>
+    <string name="ordeno_jornada">Jornada</string>
+    <string name="ordeno_litros">Litros</string>
+    <string name="unidad_litros">L</string>
+    <string name="jornada_manana">Mañana</string>
+    <string name="jornada_tarde">Tarde</string>
+
+    <!-- Tareas de cuidado -->
+    <string name="tareas_pendientes_titulo">Tareas pendientes</string>
+    <string name="tareas_vacio">Aún no hay tareas.\nToque «Nueva tarea» para empezar.</string>
+    <string name="tareas_agregar">Nueva tarea</string>
+    <string name="tareas_editar">Editar tarea</string>
+    <string name="tareas_confirmar_eliminar">¿Desea eliminar la tarea «%1$s»? Esta acción no se puede deshacer.</string>
+    <string name="tareas_eliminada">Tarea eliminada</string>
+    <string name="tareas_guardada">Tarea guardada</string>
+    <string name="tareas_actualizada">Tarea actualizada</string>
+    <string name="tarea_marcar_completada">Marcar como completada</string>
+    <string name="tarea_descripcion">Descripción</string>
+    <string name="tarea_fecha">Fecha</string>
+    <string name="tarea_sugerencia_vacuna">Vacuna</string>
+    <string name="tarea_sugerencia_desparasitacion">Desparasitación</string>
+    <string name="tarea_sugerencia_cercas">Revisión de cercas</string>
+</resources>

@@ -1,0 +1,155 @@
+<div class="tareas-container">
+  <!-- Encabezado con Indicador de Tareas y Botón de Sacar PDF -->
+  <div class="section-top-bar">
+    <div class="title-with-kpi">
+      <div class="total-tasks-card">
+        <div class="tasks-check-icon">
+          <span class="material-symbols-rounded">check</span>
+        </div>
+        <div class="total-info">
+          <span class="total-label">Tareas Pendientes</span>
+          <span class="total-value">{{ farmService.tareasPendientes() }}</span>
+        </div>
+      </div>
+
+      <div class="stat-pills">
+        <div class="sub-stat">
+          <span class="badge badge-success">{{ farmService.tareasCompletadas() }} Realizadas</span>
+        </div>
+        <div class="sub-stat">
+          <span class="badge badge-amber">{{ farmService.tareasPendientes() }} Por Realizar</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botón de Exportar a PDF (Sin agregar desde web) -->
+    <div class="top-actions">
+      <button type="button" class="btn btn-pdf" (click)="exportarPDF()">
+        <span class="material-symbols-rounded">picture_as_pdf</span>
+        Sacar PDF de Tareas
+      </button>
+    </div>
+  </div>
+
+
+  <!-- Barra de Filtros -->
+  <div class="filter-toolbar card">
+    <div class="filter-group">
+      <span class="filter-label">Estado:</span>
+      <div class="segmented-control">
+        <button
+          type="button"
+          class="seg-btn"
+          [class.active]="filtroEstado() === 'Todas'"
+          (click)="filtroEstado.set('Todas')">
+          Todas
+        </button>
+        <button
+          type="button"
+          class="seg-btn"
+          [class.active]="filtroEstado() === 'Pendientes'"
+          (click)="filtroEstado.set('Pendientes')">
+          Pendientes
+        </button>
+        <button
+          type="button"
+          class="seg-btn"
+          [class.active]="filtroEstado() === 'Completadas'"
+          (click)="filtroEstado.set('Completadas')">
+          Completadas
+        </button>
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <span class="filter-label">Categoría:</span>
+      <select
+        class="form-select filter-select"
+        [ngModel]="filtroCategoria()"
+        (ngModelChange)="filtroCategoria.set($event)">
+        @for (c of categorias; track c) {
+          <option [value]="c">{{ c }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  <!-- Lista de Tareas (Estilo Pantalla 10 del Mockup Móvil) -->
+  <div class="tareas-list-wrapper">
+    @for (tarea of tareasFiltradas(); track tarea.id) {
+      <div class="tarea-card" [class.tarea-completed]="tarea.completada">
+        <div class="tarea-checkbox-box">
+          <div class="custom-chk" [class.checked]="tarea.completada">
+            @if (tarea.completada) {
+              <span class="material-symbols-rounded">check</span>
+            }
+          </div>
+        </div>
+
+        <div class="tarea-main-body">
+          <h3 class="tarea-title" [class.strike]="tarea.completada">{{ tarea.titulo }}</h3>
+          <div class="tarea-meta-row">
+            <span class="tarea-date">
+              <span class="material-symbols-rounded mini-icon">calendar_today</span>
+              Fecha límite: {{ tarea.fechaLimite }}
+            </span>
+            <span class="badge badge-earth">{{ tarea.categoria }}</span>
+            <span class="tarea-operario">
+              <span class="material-symbols-rounded mini-icon">person</span>
+              Asignado: <strong>{{ tarea.responsable }}</strong>
+            </span>
+          </div>
+        </div>
+
+        <div class="tarea-actions-end">
+          <span class="badge" [class.badge-danger]="tarea.prioridad === 'Alta'" [class.badge-amber]="tarea.prioridad === 'Media'">
+            Prioridad {{ tarea.prioridad }}
+          </span>
+          <button
+            type="button"
+            class="btn-icon-only danger"
+            (click)="solicitarEliminar(tarea)"
+            title="Borrar tarea">
+            <span class="material-symbols-rounded">delete</span>
+          </button>
+        </div>
+      </div>
+    } @empty {
+      <div class="empty-state card">
+        <span class="material-symbols-rounded empty-icon">task_alt</span>
+        <h3>No se encontraron tareas</h3>
+        <p>No hay tareas que coincidan con los filtros seleccionados.</p>
+      </div>
+    }
+  </div>
+
+  <!-- Modal Confirmar Eliminación -->
+  @if (modalEliminarAbierto() && tareaAEliminar()) {
+    <div class="modal-backdrop" (click)="cancelarEliminar()">
+      <div class="modal-card modal-sm" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2 class="modal-title text-danger">
+            <span class="material-symbols-rounded">warning</span>
+            Confirmar eliminación
+          </h2>
+          <button type="button" class="btn-icon-only" (click)="cancelarEliminar()">
+            <span class="material-symbols-rounded">close</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>¿Está seguro de que desea eliminar la tarea <strong>"{{ tareaAEliminar()?.titulo }}"</strong>?</p>
+          <p class="text-muted mt-2">Esta acción borrará la tarea de la programación y se sincronizará con la app móvil.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="cancelarEliminar()">
+            Cancelar
+          </button>
+          <button type="button" class="btn btn-danger-outline" (click)="confirmarEliminar()">
+            <span class="material-symbols-rounded">delete</span>
+            Sí, borrar tarea
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>
