@@ -11,7 +11,7 @@ const errorHandler = (err, req, res, next) => {
     });
   }
 
-  // Error de clave duplicada en MongoDB (ej: código de animal o correo repetido)
+  // Error de clave duplicada en MongoDB ej: código de animal o correo repetido
   if (err.code === 11000) {
     const campo = Object.keys(err.keyValue)[0];
     const valor = err.keyValue[campo];

@@ -61,6 +61,17 @@ dependencies {
     // Corrutinas para tareas de red asíncronas
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
 
+    // Room Database (Persistencia local offline)
+    val roomVersion = "2.8.5"
+    implementation("androidx.room:room-runtime:$roomVersion")
+    implementation("androidx.room:room-ktx:$roomVersion")
+    ksp("androidx.room:room-compiler:$roomVersion")
+
+    // DataStore Preferences (Preferencias y Onboarding persistentes)
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
+
+    // Coil para carga de imágenes en Compose
+    implementation("io.coil-kt:coil-compose:2.6.0")
 
     // Jetpack Compose (pantalla de Ganado). BOM 2025.01.01 -> Compose 1.7 / Material 3 1.3 (compatible con compileSdk 34)
     implementation(platform("androidx.compose:compose-bom:2025.01.01"))
