@@ -382,23 +382,36 @@ export class FarmDataService {
     Number(this.potreros().reduce((acc, p) => acc + (p.areaHa || 0), 0).toFixed(2))
   );
 
+  /**
+   * Leche que cuenta como comercial (va al tanque / venta), igual que en la app Android
+   * (DestinoLeche.esComercial). Sin destino = tanque por defecto; solo se excluyen
+   * "Retiro médico (Descarte)" y "Consumo ternero" (y sus nombres de enum).
+   */
+  private static esLecheComercial(destino?: string): boolean {
+    const d = (destino ?? '').trim().toLowerCase();
+    if (!d) return true;
+    return !(d.includes('descarte') || d.includes('retiro') || d.includes('ternero') || d.includes('consumo'));
+  }
+
   readonly litrosHoy = computed(() => {
     const hoy = this.fechaHoyStr();
     return this.registrosOrdeno()
-      .filter(r => r.fecha === hoy)
+      .filter(r => r.fecha === hoy && FarmDataService.esLecheComercial(r.destinoLeche))
       .reduce((sum, r) => sum + r.litros, 0);
   });
 
   readonly litrosMananaHoy = computed(() => {
     const hoy = this.fechaHoyStr();
-    const reg = this.registrosOrdeno().find(r => r.fecha === hoy && r.jornada === 'Mañana');
-    return reg ? reg.litros : 0;
+    return this.registrosOrdeno()
+      .filter(r => r.fecha === hoy && r.jornada === 'Mañana' && FarmDataService.esLecheComercial(r.destinoLeche))
+      .reduce((sum, r) => sum + r.litros, 0);
   });
 
   readonly litrosTardeHoy = computed(() => {
     const hoy = this.fechaHoyStr();
-    const reg = this.registrosOrdeno().find(r => r.fecha === hoy && r.jornada === 'Tarde');
-    return reg ? reg.litros : 0;
+    return this.registrosOrdeno()
+      .filter(r => r.fecha === hoy && r.jornada === 'Tarde' && FarmDataService.esLecheComercial(r.destinoLeche))
+      .reduce((sum, r) => sum + r.litros, 0);
   });
 
   readonly tareasPendientes = computed(() =>

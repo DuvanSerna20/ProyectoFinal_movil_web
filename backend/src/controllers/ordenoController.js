@@ -26,15 +26,24 @@ exports.obtenerRegistrosOrdeno = async (req, res, next) => {
   }
 };
 
+// Leche que cuenta como comercial (va al tanque / venta), igual que en la app Android.
+// Sin destino = tanque por defecto; solo se excluyen descarte y consumo de ternero.
+function esLecheComercial(destino) {
+  const d = (destino || '').trim().toLowerCase();
+  if (!d) return true;
+  return !(d.includes('descarte') || d.includes('retiro') || d.includes('ternero') || d.includes('consumo'));
+}
+
 // GET /api/ordeno/resumen
 exports.obtenerResumenHoy = async (req, res, next) => {
   try {
     const hoy = req.query.fecha || new Date().toISOString().split('T')[0];
     const registrosHoy = await Ordeno.find({ fecha: hoy });
+    const comerciales = registrosHoy.filter(r => esLecheComercial(r.destinoLeche));
 
-    const totalLitrosHoy = registrosHoy.reduce((acc, r) => acc + r.litros, 0);
-    const manana = registrosHoy.find(r => r.jornada === 'Mañana')?.litros || 0;
-    const tarde = registrosHoy.find(r => r.jornada === 'Tarde')?.litros || 0;
+    const totalLitrosHoy = comerciales.reduce((acc, r) => acc + r.litros, 0);
+    const manana = comerciales.filter(r => r.jornada === 'Mañana').reduce((acc, r) => acc + r.litros, 0);
+    const tarde = comerciales.filter(r => r.jornada === 'Tarde').reduce((acc, r) => acc + r.litros, 0);
 
     res.status(200).json({
       success: true,

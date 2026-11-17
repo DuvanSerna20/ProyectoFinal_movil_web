@@ -28,10 +28,11 @@ class OnboardingActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         sessionManager = SessionManager(this)
 
-        if (sessionManager.isOnboardingCompleted) {
-            goToLogin()
-            return
-        }
+        // TEMPORAL: Siempre mostrar onboarding para demostración
+        // if (sessionManager.isOnboardingCompleted) {
+        //     goToLogin()
+        //     return
+        // }
 
         binding = ActivityOnboardingBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -63,7 +64,7 @@ class OnboardingActivity : AppCompatActivity() {
     }
 
     private fun finishOnboarding() {
-        sessionManager.isOnboardingCompleted = true
+        // sessionManager.isOnboardingCompleted = true // Comentado temporal para demostración
         goToLogin()
     }
 

@@ -189,3 +189,40 @@
   align-items: center;
   gap: 4px;
 }
+
+/* ==========================================================================
+   Segmentado de Jornada (Todas / Mañana / Tarde)
+   ========================================================================== */
+.segmented-control {
+  display: inline-flex;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  background: #f8fafc;
+}
+
+.seg-btn {
+  border: none;
+  background: transparent;
+  padding: 6px 16px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.seg-btn:not(:last-child) {
+  border-right: 1px solid var(--border-light);
+}
+
+.seg-btn:hover:not(.active) {
+  background: #eef2f0;
+  color: var(--text-main);
+}
+
+.seg-btn.active {
+  background: var(--primary);
+  color: #ffffff;
+}
