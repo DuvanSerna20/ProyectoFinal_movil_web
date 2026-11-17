@@ -20,6 +20,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.collectAsState
+import com.juanberrocal.gestionganadera.ui.comun.AvisoEstado
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -59,7 +61,10 @@ fun PotrerosRuta(viewModel: GanaderiaViewModel, acciones: AccionesPotreros) {
     val potreros by viewModel.potreros.observeAsState(emptyList())
     val fincas by viewModel.fincas.observeAsState(emptyList())
     val fincaSeleccionadaId by viewModel.fincaSeleccionadaId.observeAsState()
+    val estado by viewModel.potrerosState.collectAsState()
 
+    Column(Modifier.fillMaxSize()) {
+    AvisoEstado(estado, onReintentar = viewModel::sincronizar)
     PotrerosScreen(
         potreros = potreros,
         fincas = fincas,
@@ -75,7 +80,7 @@ fun PotrerosRuta(viewModel: GanaderiaViewModel, acciones: AccionesPotreros) {
         onGuardarPotrero = { potrero, alTerminar ->
             viewModel.guardarPotrero(potrero) { ok ->
                 alTerminar(ok)
-                if (ok) acciones.avisarPotreroGuardado(potrero.id == 0L)
+                if (ok) acciones.avisarPotreroGuardado(potrero.id.isEmpty())
             }
         },
         onMarcarListo = { potrero ->
@@ -95,6 +100,7 @@ fun PotrerosRuta(viewModel: GanaderiaViewModel, acciones: AccionesPotreros) {
         },
         onCalcularRotacion = acciones::abrirCalculadoraRotacion
     )
+    }
 }
 
 private sealed interface HojaAbierta {
@@ -168,7 +174,7 @@ fun PotrerosScreen(
                     }
                 }
 
-                items(visibles, key = { it.mongoId ?: "local-${it.id}" }) { potrero ->
+                items(visibles, key = { it.id }) { potrero ->
                     PotreroCard(
                         potrero = potrero,
                         finca = potrero.fincaId?.let { fincasPorId[it] },
@@ -252,12 +258,12 @@ private fun PotrerosScreenPreview() {
     GanaderiaTema {
         PotrerosScreen(
             potreros = listOf(
-                Potrero(1, "f1", "El Árbol", 2.5, UnidadArea.HECTAREAS, tipoPasto = TipoPasto.ESTRELLA,
+                Potrero("1", "f1", "El Árbol", 2.5, UnidadArea.HECTAREAS, tipoPasto = TipoPasto.ESTRELLA,
                     estado = EstadoPotrero.OCUPADO, condicionPasto = CondicionPasto.BAJO, diasOcupacionPlaneados = 3.0,
                     fechaUltimoCambio = LocalDate.now().minusDays(2), cantidadAnimalesActuales = 18, mongoId = "p1"),
-                Potrero(2, "f1", "La Loma", 3.0, UnidadArea.CUADRAS, tipoPasto = TipoPasto.BRACHIARIA,
+                Potrero("2", "f1", "La Loma", 3.0, UnidadArea.CUADRAS, tipoPasto = TipoPasto.BRACHIARIA,
                     estado = EstadoPotrero.LISTO, mongoId = "p2"),
-                Potrero(3, "f2", "El Bajo", 4500.0, UnidadArea.METROS_CUADRADOS, tipoPasto = TipoPasto.KIKUYO,
+                Potrero("3", "f2", "El Bajo", 4500.0, UnidadArea.METROS_CUADRADOS, tipoPasto = TipoPasto.KIKUYO,
                     estado = EstadoPotrero.EN_DESCANSO, diasDescansoPlaneados = 35,
                     fechaUltimoCambio = LocalDate.now().minusDays(20), mongoId = "p3")
             ),

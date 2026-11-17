@@ -90,7 +90,7 @@ object Razas {
 }
 
 data class Animal(
-    /** _id de MongoDB. Vacío ("") = animal nuevo todavía sin guardar. */
+    /** id LOCAL estable (UUID de Room). Vacío ("") = animal nuevo todavía sin guardar. */
     val id: String = "",
     val codigo: String,
     val nombre: String,
@@ -104,8 +104,14 @@ data class Animal(
     /** L/día. Solo tiene sentido en ordeño; se actualiza al registrar ordeños de esta vaca. */
     val produccionLitrosDia: Double? = null,
     val fincaId: String? = null,
-    /** mongoId del potrero asignado. */
-    val potreroId: String? = null
+    /** id LOCAL (UUID) del potrero asignado. */
+    val potreroId: String? = null,
+    /** _id de MongoDB; null = todavía no existe en el servidor. */
+    val mongoId: String? = null,
+    /** Ruta de la foto en el servidor ("/uploads/foto-123.jpg"). */
+    val fotoUrl: String? = null,
+    /** Foto local: Uri recién elegida (content://, file://) o ruta interna ya copiada por el repositorio. */
+    val fotoLocal: String? = null
 ) {
     val esBovino: Boolean get() = especie == Especie.BOVINO
     val esHembraBovina: Boolean get() = esBovino && sexo == Sexo.HEMBRA
@@ -259,7 +265,8 @@ enum class MotivoRotacion(val etiqueta: String) {
 }
 
 data class Potrero(
-    val id: Long = 0L,
+    /** id LOCAL estable (UUID de Room). Vacío ("") = potrero nuevo todavía sin guardar. */
+    val id: String = "",
     /** _id de la finca. Obligatorio al crear/editar; puede ser null en potreros antiguos. */
     val fincaId: String? = null,
     val nombre: String,

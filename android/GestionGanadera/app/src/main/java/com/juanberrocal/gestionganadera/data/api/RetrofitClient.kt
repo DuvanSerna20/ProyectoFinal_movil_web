@@ -37,6 +37,14 @@ object RetrofitClient {
             return retrofit!!.create(ApiService::class.java)
         }
 
+    /** "/uploads/foto-1.jpg" -> "http://10.0.2.2:3000/uploads/foto-1.jpg" (el backend sirve /uploads como estático). */
+    fun urlArchivo(ruta: String?): String? {
+        if (ruta.isNullOrBlank()) return null
+        if (ruta.startsWith("http")) return ruta
+        val raiz = BASE_URL.removeSuffix("/").removeSuffix("/api")
+        return raiz + if (ruta.startsWith("/")) ruta else "/$ruta"
+    }
+
     fun actualizarBaseUrl(nuevaUrl: String) {
         val urlFinal = if (nuevaUrl.endsWith("/")) nuevaUrl else "$nuevaUrl/"
         BASE_URL = urlFinal

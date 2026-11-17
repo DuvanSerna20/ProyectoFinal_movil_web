@@ -3,13 +3,17 @@ package com.juanberrocal.gestionganadera.ui.auth
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import com.juanberrocal.gestionganadera.GanaderiaApp
+import com.juanberrocal.gestionganadera.data.local.PreferenciasDataStore
 import com.juanberrocal.gestionganadera.databinding.ActivityOnboardingBinding
-import com.juanberrocal.gestionganadera.data.SessionManager
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 class OnboardingActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityOnboardingBinding
-    private lateinit var sessionManager: SessionManager
+    private lateinit var preferencias: PreferenciasDataStore
     private var step = 0
 
     private val titles = arrayOf(
@@ -26,50 +30,57 @@ class OnboardingActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        sessionManager = SessionManager(this)
-
-        // TEMPORAL: Siempre mostrar onboarding para demostración
-        // if (sessionManager.isOnboardingCompleted) {
-        //     goToLogin()
-        //     return
-        // }
-
+        preferencias = (application as GanaderiaApp).preferencias
         binding = ActivityOnboardingBinding.inflate(layoutInflater)
-        setContentView(binding.root)
 
+        // El estado del onboarding vive en DataStore: si ya se completó, se salta directo al login
+        lifecycleScope.launch {
+            if (preferencias.onboardingCompletado.first()) {
+                goToLogin()
+            } else {
+                mostrarOnboarding(savedInstanceState?.getInt(KEY_STEP) ?: 0)
+            }
+        }
+    }
+
+    private fun mostrarOnboarding(pasoInicial: Int) {
+        step = pasoInicial.coerceIn(0, titles.lastIndex)
+        setContentView(binding.root)
         updateStep()
 
         binding.btnNext.setOnClickListener {
             step++
-            if (step < titles.size) {
-                updateStep()
-            } else {
-                finishOnboarding()
-            }
+            if (step < titles.size) updateStep() else finishOnboarding()
         }
+        binding.btnSkip.setOnClickListener { finishOnboarding() }
+    }
 
-        binding.btnSkip.setOnClickListener {
-            finishOnboarding()
-        }
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt(KEY_STEP, step)
     }
 
     private fun updateStep() {
         binding.tvTitle.text = titles[step]
         binding.tvDescription.text = descriptions[step]
-        if (step == titles.size - 1) {
-            binding.btnNext.text = "Comenzar"
-        } else {
-            binding.btnNext.text = "Siguiente"
-        }
+        binding.btnNext.text = if (step == titles.size - 1) "Comenzar" else "Siguiente"
     }
 
     private fun finishOnboarding() {
-        // sessionManager.isOnboardingCompleted = true // Comentado temporal para demostración
-        goToLogin()
+        binding.btnNext.isEnabled = false
+        binding.btnSkip.isEnabled = false
+        lifecycleScope.launch {
+            preferencias.setOnboardingCompletado(true)
+            goToLogin()
+        }
     }
 
     private fun goToLogin() {
         startActivity(Intent(this, LoginActivity::class.java))
         finish()
+    }
+
+    private companion object {
+        const val KEY_STEP = "onboarding_step"
     }
 }

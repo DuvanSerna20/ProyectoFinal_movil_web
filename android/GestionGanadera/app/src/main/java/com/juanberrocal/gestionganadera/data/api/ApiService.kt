@@ -1,5 +1,7 @@
 package com.juanberrocal.gestionganadera.data.api
 
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -9,11 +11,49 @@ interface ApiService {
     @GET("animales")
     suspend fun getAnimales(): Response<ApiResponse<List<AnimalDto>>>
 
+    /*
+     * Alta y edición en multipart/form-data, alineado con `upload.single("foto")` de
+     * backend/src/routes/animalRoutes.js. Los campos van como texto plano (multer los deja en req.body)
+     * y la imagen en la parte "foto". Retrofit omite las partes null (igual que Gson omitía los null).
+     */
+    @Multipart
     @POST("animales")
-    suspend fun createAnimal(@Body animal: AnimalDto): Response<ApiResponse<AnimalDto>>
+    suspend fun createAnimal(
+        @Part("codigo") codigo: RequestBody,
+        @Part("nombre") nombre: RequestBody,
+        @Part("raza") raza: RequestBody,
+        @Part("sexo") sexo: RequestBody,
+        @Part("especie") especie: RequestBody?,
+        @Part("proposito") proposito: RequestBody?,
+        @Part("estadoReproductivo") estadoReproductivo: RequestBody?,
+        @Part("estado") estado: RequestBody?,
+        @Part("pesoKg") pesoKg: RequestBody?,
+        @Part("produccionLitrosDia") produccionLitrosDia: RequestBody?,
+        @Part("fincaId") fincaId: RequestBody?,
+        @Part("potreroId") potreroId: RequestBody?,
+        @Part("registradoPor") registradoPor: RequestBody?,
+        @Part foto: MultipartBody.Part?
+    ): Response<ApiResponse<AnimalDto>>
 
+    @Multipart
     @PUT("animales/{id}")
-    suspend fun updateAnimal(@Path("id") id: String, @Body animal: AnimalDto): Response<ApiResponse<AnimalDto>>
+    suspend fun updateAnimal(
+        @Path("id") id: String,
+        @Part("codigo") codigo: RequestBody,
+        @Part("nombre") nombre: RequestBody,
+        @Part("raza") raza: RequestBody,
+        @Part("sexo") sexo: RequestBody,
+        @Part("especie") especie: RequestBody?,
+        @Part("proposito") proposito: RequestBody?,
+        @Part("estadoReproductivo") estadoReproductivo: RequestBody?,
+        @Part("estado") estado: RequestBody?,
+        @Part("pesoKg") pesoKg: RequestBody?,
+        @Part("produccionLitrosDia") produccionLitrosDia: RequestBody?,
+        @Part("fincaId") fincaId: RequestBody?,
+        @Part("potreroId") potreroId: RequestBody?,
+        @Part("registradoPor") registradoPor: RequestBody?,
+        @Part foto: MultipartBody.Part?
+    ): Response<ApiResponse<AnimalDto>>
 
     @DELETE("animales/{id}")
     suspend fun deleteAnimal(@Path("id") id: String): Response<ApiResponse<Any>>

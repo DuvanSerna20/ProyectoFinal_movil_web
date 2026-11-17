@@ -12,7 +12,7 @@ const ordenoRoutes = require('./routes/ordenoRoutes');
 const tareaRoutes = require('./routes/tareaRoutes');
 const usuarioRoutes = require('./routes/usuarioRoutes');
 const auditoriaRoutes = require('./routes/auditoriaRoutes');
-const seedRoutes = require('./routes/seedRoutes');
+
 const alimentacionRoutes = require('./routes/alimentacionRoutes');
 const fincaRoutes = require('./routes/fincaRoutes');
 
@@ -57,7 +57,7 @@ app.use('/api/ordeno', ordenoRoutes);
 app.use('/api/tareas', tareaRoutes);
 app.use('/api/usuarios', usuarioRoutes);
 app.use('/api/auditoria', auditoriaRoutes);
-app.use('/api/seed', seedRoutes);
+
 app.use('/api/alimentacion', alimentacionRoutes);
 app.use('/api/fincas', fincaRoutes);
 

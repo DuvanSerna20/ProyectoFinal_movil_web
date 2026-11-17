@@ -1,6 +1,7 @@
+
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { catchError, of } from 'rxjs';
+import { catchError, EMPTY, of } from 'rxjs';
 
 export interface UsuarioMovil {
   id: string;
@@ -212,56 +213,80 @@ export class FarmDataService {
   refrescarColecciones() {
     // 1. Cargar Animales
     this.http.get<{ success: boolean; data: Animal[] }>(`${this.apiUrl}/animales`).pipe(
-      catchError(() => of({ success: false, data: [] }))
+      catchError(err => {
+        this.conectadoBackend.set(false);
+        return EMPTY;
+      })
     ).subscribe(resp => {
       this.animales.set(resp.data || []);
     });
 
     // 2. Cargar Potreros
     this.http.get<{ success: boolean; data: Potrero[] }>(`${this.apiUrl}/potreros`).pipe(
-      catchError(() => of({ success: false, data: [] }))
+      catchError(err => {
+        this.conectadoBackend.set(false);
+        return EMPTY;
+      })
     ).subscribe(resp => {
       this.potreros.set(resp.data || []);
     });
 
     // 3. Cargar Ordeño
     this.http.get<{ success: boolean; data: RegistroOrdeno[] }>(`${this.apiUrl}/ordeno`).pipe(
-      catchError(() => of({ success: false, data: [] }))
+      catchError(err => {
+        this.conectadoBackend.set(false);
+        return EMPTY;
+      })
     ).subscribe(resp => {
       this.registrosOrdeno.set(resp.data || []);
     });
 
     // 4. Cargar Tareas
     this.http.get<{ success: boolean; data: TareaCuidado[] }>(`${this.apiUrl}/tareas`).pipe(
-      catchError(() => of({ success: false, data: [] }))
+      catchError(err => {
+        this.conectadoBackend.set(false);
+        return EMPTY;
+      })
     ).subscribe(resp => {
       this.tareas.set(resp.data || []);
     });
 
     // 5. Cargar Usuarios
     this.http.get<{ success: boolean; data: UsuarioMovil[] }>(`${this.apiUrl}/usuarios`).pipe(
-      catchError(() => of({ success: false, data: [] }))
+      catchError(err => {
+        this.conectadoBackend.set(false);
+        return EMPTY;
+      })
     ).subscribe(resp => {
       this.usuarios.set(resp.data || []);
     });
 
     // 6. Cargar Auditoría
     this.http.get<{ success: boolean; data: ActividadAuditoria[] }>(`${this.apiUrl}/auditoria`).pipe(
-      catchError(() => of({ success: false, data: [] }))
+      catchError(err => {
+        this.conectadoBackend.set(false);
+        return EMPTY;
+      })
     ).subscribe(resp => {
       this.auditoria.set(resp.data || []);
     });
 
     // 7. Cargar Alimentación / Medicamentos
     this.http.get<{ success: boolean; data: RegistroAlimentacion[] }>(`${this.apiUrl}/alimentacion`).pipe(
-      catchError(() => of({ success: false, data: [] }))
+      catchError(err => {
+        this.conectadoBackend.set(false);
+        return EMPTY;
+      })
     ).subscribe(resp => {
       this.alimentacion.set(resp.data || []);
     });
 
     // 8. Cargar Fincas
     this.http.get<{ success: boolean; data: FincaInfo[] }>(`${this.apiUrl}/fincas`).pipe(
-      catchError(() => of({ success: false, data: [] }))
+      catchError(err => {
+        this.conectadoBackend.set(false);
+        return EMPTY;
+      })
     ).subscribe(resp => {
       if (resp.data && resp.data.length > 0) {
         this.fincas.set(resp.data);
@@ -275,7 +300,10 @@ export class FarmDataService {
   eliminarUsuario(id: string) {
     if (this.conectadoBackend()) {
       this.http.delete(`${this.apiUrl}/usuarios/${id}`).pipe(
-        catchError(err => of(null))
+        catchError(err => {
+          this.conectadoBackend.set(false);
+          return EMPTY;
+        })
       ).subscribe(() => {
         this.usuarios.update(list => list.filter(u => u.id !== id));
         this.refrescarColecciones();
@@ -288,7 +316,10 @@ export class FarmDataService {
   eliminarAnimal(id: string) {
     if (this.conectadoBackend()) {
       this.http.delete(`${this.apiUrl}/animales/${id}`).pipe(
-        catchError(err => of(null))
+        catchError(err => {
+          this.conectadoBackend.set(false);
+          return EMPTY;
+        })
       ).subscribe(() => {
         this.animales.update(list => list.filter(a => a.id !== id));
         this.refrescarColecciones();
@@ -301,7 +332,10 @@ export class FarmDataService {
   eliminarPotrero(id: string) {
     if (this.conectadoBackend()) {
       this.http.delete(`${this.apiUrl}/potreros/${id}`).pipe(
-        catchError(err => of(null))
+        catchError(err => {
+          this.conectadoBackend.set(false);
+          return EMPTY;
+        })
       ).subscribe(() => {
         this.potreros.update(list => list.filter(p => p.id !== id));
         this.refrescarColecciones();
@@ -318,7 +352,10 @@ export class FarmDataService {
   eliminarOrdeno(id: string) {
     if (this.conectadoBackend()) {
       this.http.delete(`${this.apiUrl}/ordeno/${id}`).pipe(
-        catchError(err => of(null))
+        catchError(err => {
+          this.conectadoBackend.set(false);
+          return EMPTY;
+        })
       ).subscribe(() => {
         this.registrosOrdeno.update(list => list.filter(o => o.id !== id));
         this.refrescarColecciones();
@@ -331,7 +368,10 @@ export class FarmDataService {
   eliminarTarea(id: string) {
     if (this.conectadoBackend()) {
       this.http.delete(`${this.apiUrl}/tareas/${id}`).pipe(
-        catchError(err => of(null))
+        catchError(err => {
+          this.conectadoBackend.set(false);
+          return EMPTY;
+        })
       ).subscribe(() => {
         this.tareas.update(list => list.filter(t => t.id !== id));
         this.refrescarColecciones();
@@ -344,7 +384,10 @@ export class FarmDataService {
   eliminarAlimentacion(id: string) {
     if (this.conectadoBackend()) {
       this.http.delete(`${this.apiUrl}/alimentacion/${id}`).pipe(
-        catchError(err => of(null))
+        catchError(err => {
+          this.conectadoBackend.set(false);
+          return EMPTY;
+        })
       ).subscribe(() => {
         this.alimentacion.update(list => list.filter(a => a.id !== id));
         this.refrescarColecciones();
@@ -357,7 +400,10 @@ export class FarmDataService {
   alternarEstadoTarea(id: string) {
     if (this.conectadoBackend()) {
       this.http.patch(`${this.apiUrl}/tareas/${id}/toggle`, {}).pipe(
-        catchError(err => of(null))
+        catchError(err => {
+          this.conectadoBackend.set(false);
+          return EMPTY;
+        })
       ).subscribe(() => {
         this.refrescarColecciones();
       });

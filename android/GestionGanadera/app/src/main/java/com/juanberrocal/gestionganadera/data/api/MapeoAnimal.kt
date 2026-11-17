@@ -51,7 +51,10 @@ object MapeoAnimal {
             pesoKg = dto.pesoKg?.takeIf { it > 0 },
             produccionLitrosDia = dto.produccionLitrosDia?.takeIf { it > 0 },
             fincaId = dto.fincaId?.ifBlank { null },
-            potreroId = dto.potreroId?.ifBlank { null }
+            // OJO: aquí llega el mongoId del potrero; el repositorio lo traduce al id local de Room
+            potreroId = dto.potreroId?.ifBlank { null },
+            mongoId = id,
+            fotoUrl = dto.fotoUrl?.ifBlank { null }
         )
     }
 

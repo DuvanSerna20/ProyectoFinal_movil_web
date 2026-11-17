@@ -30,6 +30,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.collectAsState
+import com.juanberrocal.gestionganadera.ui.comun.AvisoEstado
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -67,7 +69,10 @@ fun OrdenoRuta(viewModel: GanaderiaViewModel, onAviso: (String) -> Unit) {
     val vacas by viewModel.vacasEnOrdenoList.observeAsState(emptyList())
     val alimentacion by viewModel.alimentacion.observeAsState(emptyList())
     val dia by viewModel.diaConsultado.observeAsState(LocalDate.now())
+    val estado by viewModel.ordenosState.collectAsState()
 
+    Column(Modifier.fillMaxSize()) {
+    AvisoEstado(estado, onReintentar = viewModel::sincronizar)
     OrdenoScreen(
         registros = registros,
         animales = animales,
@@ -87,6 +92,7 @@ fun OrdenoRuta(viewModel: GanaderiaViewModel, onAviso: (String) -> Unit) {
             }
         }
     )
+    }
 }
 
 private data class FormOrdeno(val registro: RegistroOrdeno?)

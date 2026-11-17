@@ -32,6 +32,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.collectAsState
+import com.juanberrocal.gestionganadera.ui.comun.AvisoEstado
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -71,7 +73,10 @@ fun GanadoRuta(
     val potreros by viewModel.potreros.observeAsState(emptyList())
     val fincas by viewModel.fincas.observeAsState(emptyList())
     val alimentacion by viewModel.alimentacion.observeAsState(emptyList())
+    val estado by viewModel.animalesState.collectAsState()
 
+    Column(Modifier.fillMaxSize()) {
+    AvisoEstado(estado, onReintentar = viewModel::sincronizar)
     GanadoScreen(
         animales = animales,
         fincas = fincas,
@@ -88,6 +93,7 @@ fun GanadoRuta(
             onAvisoEliminado()
         }
     )
+    }
 }
 
 /** Envoltura del formulario abierto: `animal == null` significa "agregar". */
@@ -117,7 +123,7 @@ fun GanadoScreen(
     val resumen = remember(lista) { lista.resumen() }
     val visibles = remember(lista, busqueda, filtro) { lista.filtrar(busqueda, filtro) }
     val potrerosPorId = remember(potreros) {
-        potreros.filter { it.mongoId != null }.associateBy { it.mongoId!! }
+        potreros.associateBy { it.id }
     }
     val fincasPorId = remember(fincas) { fincas.associateBy { it.id } }
     val manejoPorAnimal = remember(lista, alimentacion) { Sanidad.manejoPorAnimal(lista, alimentacion) }
@@ -323,7 +329,7 @@ private fun GanadoScreenPreview() {
                     proposito = PropositoEtapa.TRABAJO_COMPANIA, estadoReproductivo = EstadoReproductivo.NO_APLICA)
             ),
             fincas = listOf(Finca("f1", "El Roble", DepartamentoColombia.RISARALDA, "Pereira", PisoTermico.MEDIO)),
-            potreros = listOf(Potrero(id = 1, fincaId = "f1", nombre = "Árbol", area = 2.0, mongoId = "p1")),
+            potreros = listOf(Potrero(id = "p1", fincaId = "f1", nombre = "Árbol", area = 2.0, mongoId = "m1")),
             onGuardar = { _, listo -> listo(true) },
             onEliminar = {}
         )

@@ -44,6 +44,6 @@ class PotrerosFragment : Fragment(), AccionesPotreros {
     override fun avisarRotacion(destino: String) = avisar(getString(R.string.rotar_exito, destino))
 
     override fun abrirCalculadoraRotacion(potrero: Potrero) {
-        findNavController().navigate(R.id.rotacionFragment, bundleOf(RotacionArgs.POTRERO_ID to potrero.mongoId))
+        findNavController().navigate(R.id.rotacionFragment, bundleOf(RotacionArgs.POTRERO_ID to potrero.id))
     }
 }

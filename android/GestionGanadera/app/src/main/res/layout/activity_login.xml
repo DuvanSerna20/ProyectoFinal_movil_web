@@ -38,6 +38,25 @@
         android:padding="12dp"
         android:background="@color/superficie" />
 
+    <!-- Error visible de autenticación (sin conexión / credenciales incorrectas) -->
+    <TextView
+        android:id="@+id/tvLoginError"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:gravity="center"
+        android:textColor="#B3261E"
+        android:textSize="14sp"
+        android:visibility="gone" />
+
+    <ProgressBar
+        android:id="@+id/progressLogin"
+        style="?android:attr/progressBarStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:visibility="gone" />
+
     <Button
         android:id="@+id/btnLogin"
         android:layout_width="match_parent"

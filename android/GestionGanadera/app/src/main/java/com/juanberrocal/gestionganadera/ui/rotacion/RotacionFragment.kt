@@ -19,8 +19,8 @@ import com.juanberrocal.gestionganadera.ui.elegirFecha
 import java.time.LocalDate
 
 object RotacionArgs {
-    /** mongoId del potrero (los id locales cambian en cada sincronización). */
-    const val POTRERO_ID = "potreroMongoId"
+    /** id LOCAL del potrero (UUID de Room: estable aunque se sincronice o se reordene la lista). */
+    const val POTRERO_ID = "potreroId"
 }
 
 class RotacionFragment : Fragment() {
@@ -57,7 +57,7 @@ class RotacionFragment : Fragment() {
             potreros = lista
             binding.actvPotrero.setAdapter(AdaptadorSinFiltro(requireContext(), lista.map { it.nombre }))
             potreroPendiente?.let { id ->
-                lista.firstOrNull { it.mongoId == id }?.let { cargarPotrero(it) }
+                lista.firstOrNull { it.id == id }?.let { cargarPotrero(it) }
                 potreroPendiente = null
             }
         }
@@ -109,7 +109,7 @@ class RotacionFragment : Fragment() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putString(RotacionArgs.POTRERO_ID, potreroPendiente ?: potreroElegido?.mongoId)
+        outState.putString(RotacionArgs.POTRERO_ID, potreroPendiente ?: potreroElegido?.id)
     }
 
     override fun onDestroyView() {

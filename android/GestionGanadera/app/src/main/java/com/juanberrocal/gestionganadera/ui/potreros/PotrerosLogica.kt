@@ -79,7 +79,7 @@ object ValidacionPotrero {
         texto.trim().replace(ESPACIOS, " ").replaceFirstChar { it.titlecase(LOCALE_CO) }
 
     /** El nombre solo debe ser único dentro de la misma finca. */
-    fun nombreRepetido(nombre: String, fincaId: String?, idActual: Long, potreros: List<Potrero>): Boolean =
+    fun nombreRepetido(nombre: String, fincaId: String?, idActual: String, potreros: List<Potrero>): Boolean =
         potreros.any { it.id != idActual && it.fincaId == fincaId && it.nombre.equals(nombre, ignoreCase = true) }
 
     fun nombreFincaRepetido(nombre: String, fincas: List<Finca>): Boolean =

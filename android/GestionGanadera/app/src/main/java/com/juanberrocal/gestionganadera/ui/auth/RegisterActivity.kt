@@ -5,21 +5,29 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.juanberrocal.gestionganadera.data.SessionManager
+import com.juanberrocal.gestionganadera.GanaderiaApp
+import com.juanberrocal.gestionganadera.data.api.ApiErrores
 import com.juanberrocal.gestionganadera.data.api.RegistroRequest
 import com.juanberrocal.gestionganadera.data.api.RetrofitClient
+import com.juanberrocal.gestionganadera.data.local.PreferenciasDataStore
 import com.juanberrocal.gestionganadera.databinding.ActivityRegisterBinding
 import com.juanberrocal.gestionganadera.ui.MainActivity
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
+import java.io.IOException
 
+/**
+ * Registro de cuenta. Igual que el login, la sesión solo se guarda si el servidor crea la cuenta:
+ * sin conexión NO se abre sesión local (antes cualquiera podía entrar con el servidor apagado).
+ */
 class RegisterActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityRegisterBinding
-    private lateinit var sessionManager: SessionManager
+    private lateinit var preferencias: PreferenciasDataStore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        sessionManager = SessionManager(this)
+        preferencias = (application as GanaderiaApp).preferencias
 
         binding = ActivityRegisterBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -32,19 +40,17 @@ class RegisterActivity : AppCompatActivity() {
             val confirm = binding.etConfirmPassword.text.toString().trim()
 
             if (nombre.isEmpty() || finca.isEmpty() || email.isEmpty() || password.isEmpty() || confirm.isEmpty()) {
-                Toast.makeText(this, "Por favor complete todos los campos", Toast.LENGTH_SHORT).show()
+                avisar("Por favor complete todos los campos")
                 return@setOnClickListener
             }
-
             if (password != confirm) {
-                Toast.makeText(this, "Las contraseñas no coinciden", Toast.LENGTH_SHORT).show()
+                avisar("Las contraseñas no coinciden")
                 return@setOnClickListener
             }
 
             binding.btnRegister.isEnabled = false
-
             lifecycleScope.launch {
-                try {
+                val error: String? = try {
                     val req = RegistroRequest(
                         nombre = nombre,
                         finca = finca,
@@ -54,28 +60,28 @@ class RegisterActivity : AppCompatActivity() {
                         dispositivo = "Android Mobile"
                     )
                     val resp = RetrofitClient.apiService.register(req)
-                    if (resp.isSuccessful) {
-                        sessionManager.saveUser(nombre, finca, email)
-                        sessionManager.isLoggedIn = true
-                        Toast.makeText(this@RegisterActivity, "¡Cuenta creada en MongoDB con éxito!", Toast.LENGTH_SHORT).show()
+                    val usuario = resp.body()?.data
+                    if (resp.isSuccessful && usuario != null && !usuario.id.isNullOrBlank()) {
+                        preferencias.guardarSesion(usuario.id, usuario.nombre, usuario.finca, usuario.correo)
+                        avisar("¡Cuenta creada con éxito!")
                         val intent = Intent(this@RegisterActivity, MainActivity::class.java)
                         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                         startActivity(intent)
                         finish()
+                        null
                     } else {
-                        val errMsg = resp.errorBody()?.string() ?: "Error al registrar cuenta"
-                        Toast.makeText(this@RegisterActivity, "Aviso del servidor: $errMsg", Toast.LENGTH_LONG).show()
-                        binding.btnRegister.isEnabled = true
+                        ApiErrores.mensaje(resp) ?: "Error al registrar la cuenta (${resp.code()})"
                     }
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: IOException) {
+                    "Sin conexión con el servidor. La cuenta no se creó; inténtalo de nuevo."
                 } catch (e: Exception) {
-                    // Si el servidor está apagado o no hay red, guardar localmente para modo offline
-                    sessionManager.saveUser(nombre, finca, email)
-                    sessionManager.isLoggedIn = true
-                    Toast.makeText(this@RegisterActivity, "Cuenta guardada localmente (Modo sin conexión)", Toast.LENGTH_SHORT).show()
-                    val intent = Intent(this@RegisterActivity, MainActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    startActivity(intent)
-                    finish()
+                    "No se pudo registrar: ${e.message ?: "error inesperado"}"
+                }
+                if (error != null) {
+                    avisar(error)
+                    binding.btnRegister.isEnabled = true
                 }
             }
         }
@@ -84,4 +90,6 @@ class RegisterActivity : AppCompatActivity() {
             finish()
         }
     }
+
+    private fun avisar(mensaje: String) = Toast.makeText(this, mensaje, Toast.LENGTH_LONG).show()
 }

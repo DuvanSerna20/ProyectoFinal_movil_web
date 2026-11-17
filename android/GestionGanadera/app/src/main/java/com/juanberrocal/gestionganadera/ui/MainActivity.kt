@@ -7,23 +7,29 @@ import android.view.MenuItem
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.juanberrocal.gestionganadera.R
-import com.juanberrocal.gestionganadera.data.SessionManager
+import com.juanberrocal.gestionganadera.GanaderiaApp
+import com.juanberrocal.gestionganadera.data.local.PreferenciasDataStore
 import com.juanberrocal.gestionganadera.databinding.ActivityMainBinding
 import com.juanberrocal.gestionganadera.ui.auth.LoginActivity
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private lateinit var sessionManager: SessionManager
+    private lateinit var preferencias: PreferenciasDataStore
+    private val viewModel: GanaderiaViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        sessionManager = SessionManager(this)
+        preferencias = (application as GanaderiaApp).preferencias
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -52,8 +58,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        // Sincronizar con MongoDB y Node.js en segundo plano
-        com.juanberrocal.gestionganadera.data.GanaderiaRepository.sincronizarConServidor()
+        // Envía pendientes y refresca Room desde MongoDB/Node.js (se omite en modo offline o sin red)
+        viewModel.sincronizar()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -70,16 +76,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun mostrarDialogoMiCuenta() {
+        lifecycleScope.launch {
+            val sesion = preferencias.sesion.first()
+            mostrarDialogoMiCuenta(sesion.nombre, sesion.finca, sesion.correo)
+        }
+    }
+
+    private fun mostrarDialogoMiCuenta(nombre: String, finca: String, correo: String) {
         val dialogView = layoutInflater.inflate(R.layout.dialog_mi_cuenta, null)
         val tvNombre = dialogView.findViewById<TextView>(R.id.tvNombre)
         val tvFinca = dialogView.findViewById<TextView>(R.id.tvFinca)
         val tvCorreo = dialogView.findViewById<TextView>(R.id.tvCorreo)
         val tvInitials = dialogView.findViewById<TextView>(R.id.tvProfileInitials)
         val btnLogout = dialogView.findViewById<Button>(R.id.btnLogout)
-
-        val nombre = sessionManager.getUserNombre()
-        val finca = sessionManager.getUserFinca()
-        val correo = sessionManager.getUserCorreo()
 
         tvNombre.text = "Nombre: $nombre"
         tvFinca.text = "Finca: $finca"
@@ -99,12 +108,14 @@ class MainActivity : AppCompatActivity() {
                 .setTitle("Cerrar sesión")
                 .setMessage("¿Estás seguro de que deseas cerrar sesión?")
                 .setPositiveButton("Sí") { _, _ ->
-                    sessionManager.logout()
                     dialog.dismiss()
-                    val intent = Intent(this, LoginActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    startActivity(intent)
-                    finish()
+                    lifecycleScope.launch {
+                        preferencias.cerrarSesion()
+                        val intent = Intent(this@MainActivity, LoginActivity::class.java)
+                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        startActivity(intent)
+                        finish()
+                    }
                 }
                 .setNegativeButton("Cancelar", null)
                 .show()

@@ -34,6 +34,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.collectAsState
+import com.juanberrocal.gestionganadera.ui.comun.AvisoEstado
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -73,8 +75,11 @@ import java.time.LocalDate
 fun AlimentacionRuta(viewModel: GanaderiaViewModel, onAviso: (String) -> Unit) {
     val registros by viewModel.alimentacion.observeAsState(emptyList())
     val animales by viewModel.animales.observeAsState(emptyList())
-    val resultado = { exito: String -> { ok: Boolean -> onAviso(if (ok) exito else "No se pudo completar. Revise la conexión.") } }
+    val resultado = { exito: String -> { ok: Boolean -> onAviso(if (ok) exito else "No se pudo completar.") } }
+    val estado by viewModel.alimentacionState.collectAsState()
 
+    Column(Modifier.fillMaxSize()) {
+    AvisoEstado(estado, onReintentar = viewModel::sincronizar)
     AlimentacionScreen(
         registros = registros,
         animales = animales,
@@ -88,6 +93,7 @@ fun AlimentacionRuta(viewModel: GanaderiaViewModel, onAviso: (String) -> Unit) {
         onReactivar = { viewModel.reactivarAlimentacion(it, resultado("Reactivado")) },
         onEliminar = { viewModel.eliminarAlimentacion(it, resultado("Registro eliminado")) }
     )
+    }
 }
 
 enum class FiltroAlimentacion(val etiqueta: String) {

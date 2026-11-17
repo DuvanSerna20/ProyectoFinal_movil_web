@@ -53,7 +53,7 @@ enum class FrecuenciaConsumo(val etiqueta: String) {
  * [fechaFin], la leche de las vacas afectadas debe ir a "Retiro médico (Descarte)".
  */
 data class RegistroAlimentacionMedicamento(
-    /** _id de MongoDB. "" = registro nuevo. */
+    /** id LOCAL estable (UUID de Room). "" = registro nuevo. */
     val id: String = "",
     val animalId: String? = null,
     val grupoProposito: PropositoEtapa? = null,

@@ -22,7 +22,7 @@ enum class TipoTareaEspecial(val etiqueta: String, val categoriaApi: String) {
 }
 
 data class Tarea(
-    /** _id de MongoDB. "" = tarea nueva todavía sin guardar. */
+    /** id LOCAL estable (UUID de Room). "" = tarea nueva todavía sin guardar. */
     val id: String = "",
     val titulo: String,
     val descripcion: String = "",

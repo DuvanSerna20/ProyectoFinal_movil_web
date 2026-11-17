@@ -9,3 +9,5 @@ router.put('/:id', alimentacionController.actualizarAlimentacion);
 router.delete('/:id', alimentacionController.eliminarAlimentacion);
 
 module.exports = router;
+
+

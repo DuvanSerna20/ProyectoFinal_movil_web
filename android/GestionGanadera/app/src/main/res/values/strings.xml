@@ -98,7 +98,7 @@
     <string name="ordeno_vaca">Vaca (opcional)</string>
     <string name="ordeno_todo_hato">Todo el hato (total)</string>
     <string name="ordeno_vaca_ayuda">Al elegir una vaca se actualiza su producción diaria</string>
-    <string name="error_guardar_servidor">No se pudo guardar: el código ya existe o no hay conexión con el servidor</string>
+    <string name="error_guardar_servidor">No se pudo guardar: ya existe un animal con ese código o la imagen no se pudo leer</string>
 
     <!-- Potreros -->
     <string name="potreros_total_titulo">Total de potreros</string>
@@ -215,4 +215,21 @@
     <string name="tarea_sugerencia_vacuna">Vacuna</string>
     <string name="tarea_sugerencia_desparasitacion">Desparasitación</string>
     <string name="tarea_sugerencia_cercas">Revisión de cercas</string>
+
+    <!-- Offline-First / sincronización -->
+    <string name="reintentar">Reintentar</string>
+    <string name="inicio_modo_offline">Trabajar sin conexión</string>
+    <string name="inicio_modo_offline_ayuda">Los cambios se guardan en el dispositivo y no se envían al servidor hasta que lo desactives.</string>
+    <string name="inicio_sincronizar">Sincronizar ahora</string>
+    <string name="sync_en_curso">Sincronizando con el servidor…</string>
+    <string name="sync_ok">Datos sincronizados con el servidor</string>
+    <string name="sync_sin_datos">Aún no se ha sincronizado en esta sesión</string>
+    <string name="sync_modo_offline">Modo sin conexión: trabajando solo con los datos del dispositivo</string>
+    <string name="sync_pendientes">%1$d cambio(s) pendiente(s) de enviar</string>
+
+    <!-- Foto del animal -->
+    <string name="animal_foto">Foto (opcional)</string>
+    <string name="animal_foto_galeria">Galería</string>
+    <string name="animal_foto_camara">Cámara</string>
+    <string name="animal_foto_descartar">Descartar foto nueva</string>
 </resources>

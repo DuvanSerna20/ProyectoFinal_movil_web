@@ -1,6 +1,13 @@
 package com.juanberrocal.gestionganadera.ui.ganado
 
+import android.graphics.Bitmap
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -8,6 +15,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -36,7 +44,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -51,8 +63,11 @@ import com.juanberrocal.gestionganadera.data.Potrero
 import com.juanberrocal.gestionganadera.data.PropositoEtapa
 import com.juanberrocal.gestionganadera.data.Razas
 import com.juanberrocal.gestionganadera.data.Sexo
+import com.juanberrocal.gestionganadera.data.api.RetrofitClient
 import com.juanberrocal.gestionganadera.logica.Formato
+import coil.compose.AsyncImage
 import kotlinx.coroutines.launch
+import java.io.File
 
 /**
  * Hoja inferior para agregar ([animalInicial] = null) o editar un animal, en 4 bloques.
@@ -132,11 +147,18 @@ fun AnimalFormSheet(
                 modifier = Modifier.fillMaxWidth()
             )
 
+            SelectorFoto(
+                foto = form.fotoMostrada,
+                onFotoElegida = { form.fotoLocal = it.toString() },
+                hayFotoNueva = form.fotoLocal != form.fotoInicialLocal,
+                onDescartar = { form.fotoLocal = form.fotoInicialLocal }
+            )
+
             // Finca y potrero (opcionales). El potrero se filtra por la finca elegida.
             val sinFinca = stringResource(R.string.animal_sin_finca)
             val sinPotrero = stringResource(R.string.animal_sin_potrero)
-            val potrerosServidor = potreros.filter { it.mongoId != null }
-            val potrerosDeFinca = form.fincaId?.let { f -> potrerosServidor.filter { it.fincaId == f } } ?: potrerosServidor
+            // Se referencian por id LOCAL: también sirven los potreros creados sin conexión
+            val potrerosDeFinca = form.fincaId?.let { f -> potreros.filter { it.fincaId == f } } ?: potreros
             val nombreFinca = { id: String? -> fincas.firstOrNull { it.id == id }?.nombre }
 
             CampoDesplegable(
@@ -145,13 +167,13 @@ fun AnimalFormSheet(
                 opciones = listOf<Finca?>(null) + fincas,
                 textoDe = { it?.descripcion ?: sinFinca },
                 estaSeleccionado = { it?.id == form.fincaId },
-                onSeleccion = { form.elegirFinca(it?.id, potrerosServidor) },
+                onSeleccion = { form.elegirFinca(it?.id, potreros) },
                 habilitado = fincas.isNotEmpty(),
                 modifier = Modifier.fillMaxWidth()
             )
             CampoDesplegable(
                 etiqueta = stringResource(R.string.animal_potrero),
-                valorMostrado = potrerosServidor.firstOrNull { it.mongoId == form.potreroId }?.nombre ?: sinPotrero,
+                valorMostrado = potreros.firstOrNull { it.id == form.potreroId }?.nombre ?: sinPotrero,
                 opciones = listOf<Potrero?>(null) + potrerosDeFinca,
                 textoDe = { p ->
                     when {
@@ -160,8 +182,8 @@ fun AnimalFormSheet(
                         else -> p.nombre
                     }
                 },
-                estaSeleccionado = { it?.mongoId == form.potreroId },
-                onSeleccion = { p -> form.potreroId = p?.mongoId; if (p?.fincaId != null) form.fincaId = p.fincaId },
+                estaSeleccionado = { it?.id == form.potreroId },
+                onSeleccion = { p -> form.potreroId = p?.id; if (p?.fincaId != null) form.fincaId = p.fincaId },
                 habilitado = potrerosDeFinca.isNotEmpty(),
                 ayuda = if (potrerosDeFinca.isEmpty()) stringResource(R.string.animal_sin_potreros_registrados) else null,
                 modifier = Modifier.fillMaxWidth()
@@ -335,6 +357,15 @@ private class EstadoFormularioAnimal(private val inicial: Animal?) {
     var peso by mutableStateOf(inicial?.pesoKg?.let(Formato::plano).orEmpty())
     var produccion by mutableStateOf(inicial?.produccionLitrosDia?.let(Formato::plano).orEmpty())
 
+    /** Foto local guardada antes (ruta interna) y la elegida ahora (Uri content:// o file://). */
+    val fotoInicialLocal: String? = inicial?.fotoLocal
+    var fotoLocal by mutableStateOf(inicial?.fotoLocal)
+
+    /** Lo que se previsualiza: la foto local si existe, si no la del servidor. */
+    val fotoMostrada: Any?
+        get() = fotoLocal?.let { if (it.startsWith("/")) File(it) else it }
+            ?: RetrofitClient.urlArchivo(inicial?.fotoUrl)
+
     var errorCodigo by mutableStateOf<Int?>(null)
     var errorNombre by mutableStateOf<Int?>(null)
     var errorRaza by mutableStateOf<Int?>(null)
@@ -364,7 +395,7 @@ private class EstadoFormularioAnimal(private val inicial: Animal?) {
     /** Al cambiar de finca se quita el potrero si no pertenece a la nueva finca. */
     fun elegirFinca(id: String?, potreros: List<Potrero>) {
         fincaId = id
-        val potrero = potreros.firstOrNull { it.mongoId == potreroId }
+        val potrero = potreros.firstOrNull { it.id == potreroId }
         if (id != null && potrero != null && potrero.fincaId != id) potreroId = null
     }
 
@@ -432,7 +463,65 @@ private class EstadoFormularioAnimal(private val inicial: Animal?) {
             pesoKg = pesoNum,
             produccionLitrosDia = if (enOrdeno) produccionNum else null,
             fincaId = fincaId,
-            potreroId = potreroId
+            potreroId = potreroId,
+            mongoId = inicial?.mongoId,
+            fotoUrl = inicial?.fotoUrl,
+            fotoLocal = fotoLocal
         )
+    }
+}
+
+/**
+ * Foto opcional del animal: galería (Photo Picker, sin permisos) o cámara (vista previa, sin FileProvider).
+ * La Uri elegida se entrega al repositorio, que la copia al almacenamiento interno y la sube como
+ * multipart "foto" cuando hay conexión.
+ */
+@Composable
+private fun SelectorFoto(foto: Any?, onFotoElegida: (Uri) -> Unit, hayFotoNueva: Boolean, onDescartar: () -> Unit) {
+    val contexto = LocalContext.current
+    val galeria = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        if (uri != null) onFotoElegida(uri)
+    }
+    val camara = rememberLauncherForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
+        if (bitmap != null) {
+            val archivo = File(contexto.cacheDir, "captura-${System.currentTimeMillis()}.jpg")
+            archivo.outputStream().use { bitmap.compress(Bitmap.CompressFormat.JPEG, 90, it) }
+            onFotoElegida(Uri.fromFile(archivo))
+        }
+    }
+
+    Subtitulo(R.string.animal_foto)
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        if (foto != null) {
+            AsyncImage(
+                model = foto,
+                contentDescription = stringResource(R.string.animal_foto),
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.size(72.dp).clip(RoundedCornerShape(12.dp))
+            )
+        } else {
+            Spacer(
+                Modifier
+                    .size(72.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+            )
+        }
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(onClick = {
+                    galeria.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                }) { Text(stringResource(R.string.animal_foto_galeria)) }
+                OutlinedButton(onClick = { camara.launch(null) }) { Text(stringResource(R.string.animal_foto_camara)) }
+            }
+            if (hayFotoNueva) {
+                Text(
+                    stringResource(R.string.animal_foto_descartar),
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.labelLarge,
+                    modifier = Modifier.padding(start = 4.dp).clickable(onClick = onDescartar)
+                )
+            }
+        }
     }
 }

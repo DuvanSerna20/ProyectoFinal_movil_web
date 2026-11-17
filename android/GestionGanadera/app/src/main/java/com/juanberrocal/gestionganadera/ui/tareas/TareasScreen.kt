@@ -31,6 +31,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.collectAsState
+import com.juanberrocal.gestionganadera.ui.comun.AvisoEstado
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -63,6 +65,10 @@ import java.time.LocalDate
 fun TareasRuta(viewModel: GanaderiaViewModel, onAviso: (String) -> Unit) {
     val tareas by viewModel.tareas.observeAsState(emptyList())
     val animales by viewModel.animales.observeAsState(emptyList())
+    val estado by viewModel.tareasState.collectAsState()
+
+    Column(Modifier.fillMaxSize()) {
+    AvisoEstado(estado, onReintentar = viewModel::sincronizar)
     TareasScreen(
         tareas = tareas,
         animales = animales,
@@ -77,6 +83,7 @@ fun TareasRuta(viewModel: GanaderiaViewModel, onAviso: (String) -> Unit) {
             viewModel.eliminarTarea(tarea) { ok -> onAviso(if (ok) "Tarea eliminada" else "No se pudo eliminar la tarea") }
         }
     )
+    }
 }
 
 /** Colores del badge por tipo de evento sanitario. */

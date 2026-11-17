@@ -1,0 +1,222 @@
+==========================================================================================
+  GESTIÓN GANADERA (Android) - CAMBIOS POR AUDITORÍA DE CÓDIGO
+  Fecha: 17/11/2026
+==========================================================================================
+
+RESUMEN
+-------
+Se corrigieron 6 defectos técnicos (M1-M6) y la arquitectura quedó Offline-First:
+Room es la única fuente de verdad; DataStore guarda la sesión y las preferencias;
+Retrofit solo sincroniza.
+
+Verificación:
+  - Compila sin errores (:app:compileDebugKotlin).
+  - Tests unitarios: 7/7 OK (4 que ya existían en ManejoLogicaTest + 3 nuevos en MapeoLocalTest).
+  - APK generado: app/build/outputs/apk/debug/app-debug.apk
+  - NO se probó todavía en un emulador ni contra el backend Node/Mongo encendido.
+
+
+==========================================================================================
+1. [CRÍTICO - M3] FALLO DE SEGURIDAD EN AUTENTICACIÓN
+==========================================================================================
+Problema: si el login fallaba por red, el bloque catch marcaba isLoggedIn = true y dejaba
+entrar a cualquiera.
+
+Corrección (ui/auth/LoginActivity.kt):
+  - Se eliminó el ingreso por fallback en el catch.
+  - La sesión SOLO se guarda si el servidor responde bien y devuelve el usuario con _id.
+  - Si hay error, el usuario se queda en LoginActivity con un mensaje visible en pantalla:
+      * Sin red (IOException)  -> "Sin conexión con el servidor..."
+      * HTTP 400/401/404       -> "Credenciales incorrectas" + el mensaje del backend
+      * Otros errores HTTP     -> mensaje del servidor o "Error del servidor (código)"
+  - Se entra sin conexión SOLO si ya existe una sesión válida persistida en DataStore
+    (IS_LOGGED_IN = true y AUTH_TOKEN no vacío, de un login correcto anterior).
+  - Layout activity_login.xml: se agregaron tvLoginError (mensaje de error) y
+    progressLogin (indicador de carga).
+
+Extra (mismo fallo): ui/auth/RegisterActivity.kt abría una sesión local cuando no había red.
+Ahora la cuenta solo se crea y la sesión solo se guarda si el servidor responde bien.
+
+
+==========================================================================================
+2. [GRAVE - M2] ONBOARDING Y SESIÓN MIGRADOS A DATASTORE
+==========================================================================================
+  - Se ELIMINÓ data/SessionManager.kt (SharedPreferences).
+  - data/local/PreferenciasDataStore.kt (reescrito), con Flow y funciones suspend:
+      * ONBOARDING_COMPLETADO
+      * IS_LOGGED_IN
+      * AUTH_TOKEN
+      * USUARIO_NOMBRE / USUARIO_FINCA / USUARIO_CORREO
+      * MODO_OFFLINE_PREFERIDO
+    Si el archivo no se puede leer (IOException), se tratan como preferencias vacías y la app
+    no se cae. guardarSesion() exige un token no vacío. cerrarSesion() borra el token.
+  - Usan DataStore: OnboardingActivity, LoginActivity, RegisterActivity y MainActivity
+    (cuenta y cerrar sesión). Se migró todo para que la sesión no quede repartida en
+    dos almacenes distintos.
+  - OnboardingActivity: ahora se muestra solo la primera vez (antes estaba forzado
+    "para demostración"). Para verlo otra vez: borrar los datos de la app.
+  - MODO_OFFLINE_PREFERIDO conectado a la UI y a la lógica:
+      * Inicio (fragment_inicio.xml + InicioFragment.kt): switch "Trabajar sin conexión",
+        estado de la última sincronización, contador de cambios pendientes y botón
+        "Sincronizar ahora".
+      * Activado: no se hace NINGUNA llamada Retrofit; todo se guarda en Room.
+      * Desactivado: se envían los pendientes de inmediato y, además, se sincroniza solo
+        cada vez que el dispositivo recupera la red.
+
+
+==========================================================================================
+3. [GRAVE - M1] ROOM COMO ÚNICA FUENTE DE VERDAD
+==========================================================================================
+  - data/GanaderiaRepository.kt: pasó de ser un `object` con MutableLiveData en memoria a
+    una clase que lee y escribe en Room.
+  - Lecturas: el ViewModel observa los Flow de los DAO (dao.obtenerTodos()), así que los
+    datos siguen ahí al cerrar y reabrir la app, aunque no haya internet.
+  - Escrituras (crear / editar / eliminar):
+      1) Se guarda en Room con sincronizado = false.
+      2) Se intenta enviar por Retrofit en segundo plano.
+      3) Si el servidor responde bien, se guarda su mongoId y sincronizado = true.
+    Los borrados de registros que ya están en el servidor se marcan como pendienteEliminar
+    (no se muestran) hasta que el DELETE se confirma.
+  - Cubre: Ganado, Potreros, Ordeños, Tareas y también Alimentación/Medicamentos.
+    Las fincas quedan como caché de lectura en Room (se crean en el servidor).
+  - data/local/AppDatabase.kt: versión 2 con 6 tablas (animales, potreros, fincas, ordenos,
+    tareas, alimentacion). La migración desde la versión 1 borra las tablas viejas: no se
+    pierde nada, porque esas tablas nunca se usaban y estaban vacías.
+  - data/local/DaosRoom.kt: DAOs nuevos con @Upsert, pendientes, contador de pendientes,
+    borrado lógico y marcarSincronizado condicionado a la versión (si el usuario edita
+    mientras se envía, su cambio no se pierde).
+  - Nuevo data/local/MapeoLocal.kt: conversión entidad Room <-> modelo de dominio
+    (los enums se guardan por nombre y las fechas en ISO-8601).
+  - Nuevo GanaderiaApp.kt (Application, registrado en AndroidManifest.xml): una sola
+    instancia de la base de datos, el DataStore y el repositorio.
+
+
+==========================================================================================
+4. [ALTO - M5] IDENTIFICADORES LOCALES ESTABLES
+==========================================================================================
+  - Se eliminó el uso de (index + 1) y System.currentTimeMillis() como ID.
+  - Clave primaria = UUID.randomUUID().toString(), generado una sola vez (al crear el
+    registro en el dispositivo o al descargarlo del servidor por primera vez).
+  - Campo mongoId: String? con índice único, para mapear la identidad del servidor.
+  - Las referencias entre registros (potrero de un animal, vaca de un ordeño, animal de
+    una tarea o tratamiento) usan SIEMPRE el id local. Se traducen a mongoId solo al
+    hablar con la API, así no se duplican ni se pierden selecciones al sincronizar.
+  - Potrero.id pasó de Long a String. Ajustes en: PotreroFormSheet, PotrerosLogica,
+    PotrerosScreen, PotrerosFragment, RotacionFragment, GanadoScreen y AnimalFormSheet.
+    Los potreros creados sin conexión ya se pueden asignar a un animal.
+
+
+==========================================================================================
+5. [ALTO - M4] ESTADOS CONSISTENTES Y SINCRONIZACIÓN RESILIENTE
+==========================================================================================
+  - sincronizarConServidor():
+      1) Sube los pendientes en orden de dependencias (potreros -> animales ->
+         ordeños / tareas / alimentación).
+      2) Descarga cada ruta dentro de supervisorScope, cada una con su propio manejo de
+         errores: si falla una ruta (por ejemplo /fincas), las demás se sincronizan igual
+         y el error queda reportado solo para esa ruta.
+      3) Al fusionar, gana el cambio local que todavía no se ha enviado; lo que se borró en
+         el servidor se elimina del dispositivo. Todo se hace dentro de una transacción.
+    Hay un Mutex para que dos sincronizaciones no envíen el mismo registro dos veces.
+  - ui/GanaderiaViewModel.kt: sealed interface UiState<out T>
+      Loading | Success(data) | Empty | Error(mensaje, datosCacheados)
+    Expuesto como animalesState, potrerosState, ordenosState, tareasState,
+    alimentacionState y sincronizacionState.
+  - Nuevo ui/comun/AvisoEstado.kt: franja de carga, o de error con "Reintentar", en
+    Ganado, Potreros, Ordeño, Tareas y Alimentación. La lista guardada en Room sigue
+    visible debajo.
+
+
+==========================================================================================
+6. [MEDIO - M6] MULTIPART PARA LA FOTO DEL ANIMAL
+==========================================================================================
+  - data/api/ApiService.kt: createAnimal y updateAnimal pasaron de @Body JSON a @Multipart.
+    Los campos van como @Part RequestBody text/plain (codigo, nombre, raza, sexo, especie,
+    proposito, estadoReproductivo, estado, pesoKg, produccionLitrosDia, fincaId, potreroId,
+    registradoPor) y la imagen va en @Part foto: MultipartBody.Part?.
+    Coincide con upload.single("foto") de backend/src/routes/animalRoutes.js.
+  - GanaderiaRepository.uriAMultipart(uri): convierte la Uri de la imagen en
+    MultipartBody.Part con el campo "foto" y un nombre con extensión (el filtro de multer
+    exige jpg, png o webp).
+  - La foto se copia comprimida (JPEG, lado máximo 1600 px, por debajo del límite de 5 MB
+    del backend) a la carpeta interna de la app. Así se puede subir más tarde si ahora no
+    hay red.
+  - AnimalFormSheet.kt: botones Galería (Photo Picker, sin permisos) y Cámara, con vista
+    previa de la foto usando Coil.
+  - RetrofitClient.urlArchivo(): arma la URL completa de /uploads para mostrar la foto
+    que ya está en el servidor.
+  - build.gradle.kts: se agregó androidx.activity:activity-compose:1.9.1.
+
+
+==========================================================================================
+LISTA DE ARCHIVOS
+==========================================================================================
+Reescritos:
+  data/GanaderiaRepository.kt
+  data/local/EntidadesRoom.kt
+  data/local/DaosRoom.kt
+  data/local/AppDatabase.kt
+  data/local/PreferenciasDataStore.kt
+  ui/GanaderiaViewModel.kt
+  ui/auth/LoginActivity.kt
+  ui/auth/OnboardingActivity.kt
+  ui/auth/RegisterActivity.kt
+
+Nuevos:
+  GanaderiaApp.kt
+  data/local/MapeoLocal.kt
+  data/api/ApiErrores.kt
+  ui/comun/AvisoEstado.kt
+  app/src/test/.../MapeoLocalTest.kt
+  CAMBIOS_AUDITORIA.txt (este archivo)
+
+Modificados:
+  data/api/ApiService.kt, data/api/MapeoAnimal.kt, data/api/MapeoPotrero.kt,
+  data/api/RetrofitClient.kt, data/Entidades.kt, data/ModelosOrdeno.kt,
+  data/ModelosTareas.kt, data/ModelosAlimentacion.kt (solo comentarios de id),
+  ui/MainActivity.kt, ui/inicio/InicioFragment.kt,
+  ui/ganado/GanadoScreen.kt, ui/ganado/AnimalFormSheet.kt,
+  ui/potreros/PotrerosScreen.kt, ui/potreros/PotreroFormSheet.kt,
+  ui/potreros/PotrerosLogica.kt, ui/potreros/PotrerosFragment.kt,
+  ui/rotacion/RotacionFragment.kt, ui/ordeno/OrdenoScreen.kt,
+  ui/tareas/TareasScreen.kt, ui/alimentacion/AlimentacionScreen.kt,
+  AndroidManifest.xml, res/layout/activity_login.xml, res/layout/fragment_inicio.xml,
+  res/values/strings.xml, app/build.gradle.kts
+
+Eliminado:
+  data/SessionManager.kt
+
+
+==========================================================================================
+LIMITACIONES CONOCIDAS
+==========================================================================================
+  - El backend no emite un token (JWT). Como AUTH_TOKEN se guarda el _id que devuelve el
+    servidor tras un login correcto: sirve para saber que hubo un login válido, pero no es
+    una credencial real. Para seguridad completa habría que agregar JWT en el backend.
+  - Sin conexión, el código de animal repetido solo se compara con los datos del
+    dispositivo. Si el servidor lo rechaza al sincronizar, el registro queda pendiente y el
+    error aparece en la franja de la pantalla.
+  - Crear fincas y rotar ganado siguen necesitando conexión, porque los valida el servidor.
+
+
+==========================================================================================
+CÓMO PROBAR LA PERSISTENCIA CON EL APK
+==========================================================================================
+  1. Instalar el APK:   adb install -r app/build/outputs/apk/debug/app-debug.apk
+  2. Iniciar sesión con el backend encendido.
+  3. Activar el modo avión. Crear un animal con foto, un potrero y un ordeño.
+     En Inicio debe aparecer "N cambio(s) pendiente(s) de enviar".
+  4. Cerrar la app del todo y volver a abrirla sin red: debe entrar directo (sesión
+     guardada) y mostrar los datos.
+  5. Cerrar sesión y tratar de entrar sin red: debe mostrar el error y NO dejar pasar.
+  6. Quitar el modo avión: los pendientes deben bajar a 0 y los registros deben aparecer
+     en MongoDB y en el panel web, con la foto en /uploads.
+
+
+==========================================================================================
+CÓMO COMPILAR (este proyecto no tiene gradlew ni local.properties)
+==========================================================================================
+  Desde android/GestionGanadera:
+    ANDROID_HOME=~/Android/Sdk ~/.gradle/wrapper/dists/gradle-9.5.0-bin/*/gradle-9.5.0/bin/gradle \
+      :app:testDebugUnitTest :app:assembleDebug
+  O simplemente abrir el proyecto en Android Studio y ejecutar.

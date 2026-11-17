@@ -13,7 +13,7 @@ import java.time.LocalDate
 /** Conversión Potrero/Finca <-> DTOs del backend. */
 object MapeoPotrero {
 
-    fun aDominio(dto: PotreroDto, idLocal: Long): Potrero {
+    fun aDominio(dto: PotreroDto, idLocal: String): Potrero {
         // Potreros antiguos solo tienen largo x ancho: se expresan en m²
         val tieneArea = dto.area != null && dto.area > 0
         val unidad = if (tieneArea) UnidadArea.desde(dto.unidadArea) else UnidadArea.METROS_CUADRADOS

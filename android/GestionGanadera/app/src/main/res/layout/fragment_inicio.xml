@@ -88,6 +88,66 @@
                 android:layout_weight="1" />
         </LinearLayout>
 
+        <!-- Modo sin conexión (MODO_OFFLINE_PREFERIDO en DataStore) y estado de sincronización -->
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.Ganaderia.Card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/switchModoOffline"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:text="@string/inicio_modo_offline"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/inicio_modo_offline_ayuda"
+                    android:textSize="13sp" />
+
+                <com.google.android.material.progressindicator.LinearProgressIndicator
+                    android:id="@+id/progresoSync"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:indeterminate="true"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/tvEstadoSync"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/tvPendientes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="13sp"
+                    android:visibility="gone" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSincronizar"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:text="@string/inicio_sincronizar" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnRotacion"
             android:layout_width="match_parent"

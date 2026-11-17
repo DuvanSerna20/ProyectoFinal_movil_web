@@ -5,74 +5,93 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import java.io.IOException
 
-val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "gestion_ganadera_preferences")
+private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "gestion_ganadera_preferences")
+
+/** Sesión persistida. Solo cuenta como activa si hubo un login válido contra el servidor. */
+data class Sesion(
+    val isLoggedIn: Boolean,
+    val token: String?,
+    val nombre: String,
+    val finca: String,
+    val correo: String
+) {
+    val activa: Boolean get() = isLoggedIn && !token.isNullOrBlank()
+}
 
 /**
- * Gestión de preferencias y onboarding mediante Jetpack DataStore (Requisito Rúbrica Móvil I).
+ * Preferencias, onboarding y sesión con Jetpack DataStore (reemplaza a SessionManager/SharedPreferences).
+ * Todo se expone como Flow y se escribe con funciones suspend.
  */
-class PreferenciasDataStore(private val context: Context) {
+class PreferenciasDataStore(context: Context) {
+
+    private val dataStore = context.applicationContext.dataStore
 
     companion object {
         val ONBOARDING_COMPLETADO = booleanPreferencesKey("onboarding_completado")
-        val SESION_INICIADA = booleanPreferencesKey("sesion_iniciada")
+        val IS_LOGGED_IN = booleanPreferencesKey("is_logged_in")
+        /** Identificador emitido por el servidor tras un login válido. */
+        val AUTH_TOKEN = stringPreferencesKey("auth_token")
         val USUARIO_NOMBRE = stringPreferencesKey("usuario_nombre")
         val USUARIO_FINCA = stringPreferencesKey("usuario_finca")
         val USUARIO_CORREO = stringPreferencesKey("usuario_correo")
+        /** true = trabajar solo con Room, sin intentar sincronizar con Retrofit. */
         val MODO_OFFLINE_PREFERIDO = booleanPreferencesKey("modo_offline_preferido")
     }
 
-    val onboardingCompletadoFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
-        preferences[ONBOARDING_COMPLETADO] ?: false
+    /** Un archivo corrupto o ilegible no debe tumbar la app: se tratan como preferencias vacías. */
+    private val datos: Flow<Preferences> = dataStore.data.catch { e ->
+        if (e is IOException) emit(emptyPreferences()) else throw e
     }
 
-    val sesionIniciadaFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
-        preferences[SESION_INICIADA] ?: false
-    }
+    val onboardingCompletado: Flow<Boolean> =
+        datos.map { it[ONBOARDING_COMPLETADO] ?: false }.distinctUntilChanged()
 
-    val usuarioNombreFlow: Flow<String> = context.dataStore.data.map { preferences ->
-        preferences[USUARIO_NOMBRE] ?: "Juan Berrocal"
-    }
+    val sesion: Flow<Sesion> = datos.map { p ->
+        Sesion(
+            isLoggedIn = p[IS_LOGGED_IN] ?: false,
+            token = p[AUTH_TOKEN],
+            nombre = p[USUARIO_NOMBRE].orEmpty(),
+            finca = p[USUARIO_FINCA].orEmpty(),
+            correo = p[USUARIO_CORREO].orEmpty()
+        )
+    }.distinctUntilChanged()
 
-    val usuarioFincaFlow: Flow<String> = context.dataStore.data.map { preferences ->
-        preferences[USUARIO_FINCA] ?: "Finca La Esperanza"
-    }
-
-    val usuarioCorreoFlow: Flow<String> = context.dataStore.data.map { preferences ->
-        preferences[USUARIO_CORREO] ?: "usuario@ganaderia.com"
-    }
+    val modoOfflinePreferido: Flow<Boolean> =
+        datos.map { it[MODO_OFFLINE_PREFERIDO] ?: false }.distinctUntilChanged()
 
     suspend fun setOnboardingCompletado(completado: Boolean) {
-        context.dataStore.edit { preferences ->
-            preferences[ONBOARDING_COMPLETADO] = completado
-        }
+        dataStore.edit { it[ONBOARDING_COMPLETADO] = completado }
     }
 
-    suspend fun guardarSesion(nombre: String, finca: String, correo: String) {
-        context.dataStore.edit { preferences ->
-            preferences[SESION_INICIADA] = true
-            preferences[USUARIO_NOMBRE] = nombre
-            preferences[USUARIO_FINCA] = finca
-            preferences[USUARIO_CORREO] = correo
+    /** Solo debe llamarse tras una respuesta exitosa del servidor (login o registro). */
+    suspend fun guardarSesion(token: String, nombre: String, finca: String, correo: String) {
+        require(token.isNotBlank()) { "No se puede guardar una sesión sin token" }
+        dataStore.edit {
+            it[IS_LOGGED_IN] = true
+            it[AUTH_TOKEN] = token
+            it[USUARIO_NOMBRE] = nombre
+            it[USUARIO_FINCA] = finca
+            it[USUARIO_CORREO] = correo
         }
     }
 
     suspend fun cerrarSesion() {
-        context.dataStore.edit { preferences ->
-            preferences[SESION_INICIADA] = false
+        dataStore.edit {
+            it[IS_LOGGED_IN] = false
+            it.remove(AUTH_TOKEN)
         }
     }
 
-    suspend fun isOnboardingCompletedSync(): Boolean {
-        return context.dataStore.data.first()[ONBOARDING_COMPLETADO] ?: false
-    }
-
-    suspend fun isLoggedInSync(): Boolean {
-        return context.dataStore.data.first()[SESION_INICIADA] ?: false
+    suspend fun setModoOfflinePreferido(activo: Boolean) {
+        dataStore.edit { it[MODO_OFFLINE_PREFERIDO] = activo }
     }
 }

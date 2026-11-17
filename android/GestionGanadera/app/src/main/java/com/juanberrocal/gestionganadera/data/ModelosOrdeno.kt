@@ -30,7 +30,7 @@ enum class DestinoLeche(val etiqueta: String, val etiquetaCorta: String) {
 }
 
 data class RegistroOrdeno(
-    /** _id de MongoDB. "" = registro nuevo todavía sin guardar. */
+    /** id LOCAL estable (UUID de Room). "" = registro nuevo todavía sin guardar. */
     val id: String = "",
     /** Vaca ordeñada. null solo si es el registro general del tanque (todo el hato). */
     val animalId: String?,

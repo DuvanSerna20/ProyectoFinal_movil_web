@@ -342,7 +342,7 @@ private class EstadoFormularioPotrero(private val inicial: Potrero?, fincaPresel
     fun validar(existentes: List<Potrero>): Potrero? {
         val nombreLimpio = ValidacionPotrero.nombre(nombre)
         nombre = nombreLimpio
-        val id = inicial?.id ?: 0L
+        val id = inicial?.id.orEmpty()
 
         errorFinca = fincaId == null
         errorNombre = when {
